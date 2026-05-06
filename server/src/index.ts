@@ -1,19 +1,8 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+import * as db from './db'; 
+import { fileURLToPath } from 'url';
 
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors());
-app.use(express.json());
-
-app.get('/api/prueba', (req, res) => {
-    res.json({ mensaje: "¡Servidor funcionando en Debian!" });
-});
-
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-});
+const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
+if (isDirectRun) {
+    console.log(await db.puc_get_hierarchy(3));
+    console.log(await db.puc_get_id('1.1'));
+}
