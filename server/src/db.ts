@@ -13,7 +13,7 @@ const pool = mariadb.createPool({
   connectionLimit: 5
 });
 
-export async function dimension_create(
+export async function dimensionCreate(
   dimension: string,
   args: Record<string, any>
 ): Promise<void> {
@@ -32,7 +32,7 @@ export async function dimension_create(
   console.log(`Registro creado con éxito en la dimensión: ${dimension}`);
 }
 
-export async function dimension_edit(
+export async function dimensionEdit(
   dimension: string,
   id: number,
   args: Record<string, any>
@@ -51,7 +51,7 @@ export async function dimension_edit(
   console.log(`Registro ${id} actualizado con éxito en la dimensión: ${dimension}`);
 }
 
-export async function dimension_delete(
+export async function dimensionDelete(
   dimension: string,
   id: number
 ): Promise<void> {
@@ -66,7 +66,7 @@ export async function dimension_delete(
   console.log(`Registro ${id} eliminado con éxito de la dimensión: ${dimension}`);
 }
 
-export async function puc_get_hierarchy(id: number): Promise<string> {
+export async function pucGetHierarchy(id: number): Promise<string> {
   let currentId: number | null = id;
   const hierarchy: number[] = [];
 
@@ -86,13 +86,13 @@ export async function puc_get_hierarchy(id: number): Promise<string> {
   return hierarchy.join('.');
 }
 
-export async function puc_create(
+export async function pucCreate(
   padre: number,
   subnivel: number,
   args: Record<string, any>
 ): Promise<void> {
-  const codigo = `${await puc_get_hierarchy(padre)}.${subnivel}`
-  await dimension_create("puc", {
+  const codigo = `${await pucGetHierarchy(padre)}.${subnivel}`
+  await dimensionCreate("puc", {
     ...args,
     padre: padre,
     subnivel: subnivel,
