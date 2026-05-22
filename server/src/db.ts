@@ -85,3 +85,17 @@ export async function puc_get_hierarchy(id: number): Promise<string> {
 
   return hierarchy.join('.');
 }
+
+export async function puc_create(
+  padre: number,
+  subnivel: number,
+  args: Record<string, any>
+): Promise<void> {
+  const codigo = `${await puc_get_hierarchy(padre)}.${subnivel}`
+  await dimension_create("puc", {
+    ...args,
+    padre: padre,
+    subnivel: subnivel,
+    codigo: codigo
+  })
+}
