@@ -102,14 +102,14 @@ CREATE TABLE afectacion_ingresos (
 CREATE TABLE fechas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     fecha DATE NOT NULL,
-    anyo INT UNSIGNED NOT NULL,
+    anio INT UNSIGNED NOT NULL,
     mes TINYINT NOT NULL,
     mes_nombre VARCHAR(20) NOT NULL,
     dia TINYINT NOT NULL,
     dia_semana TINYINT NOT NULL,
     dia_nombre VARCHAR(20) NOT NULL,
     trimestre TINYINT NOT NULL,
-    anyo_mes VARCHAR(7) NOT NULL
+    anio_mes VARCHAR(7) NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE cuentas_fondos (
@@ -233,7 +233,7 @@ CREATE VIEW vista_eventos AS
 SELECT 
     e.id,
     e.fecha,
-    f.anyo AS ejercicio,
+    f.anio AS ejercicio,
     e.nombre,
     e.tipo,
     e.condicion,
