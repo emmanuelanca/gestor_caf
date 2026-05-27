@@ -462,16 +462,6 @@ export default function App() {
             <div className="tile-icon refined"><MdMenuBook className="svg-icon" /></div>
             <div className="tile-text"><div className="tile-title">PUC</div><div className="tile-desc">Administrar cuentas</div></div>
           </button>
-
-          <button className="menu-tile primary-tile vertical" onClick={() => setScreen("opciones")}>
-            <div className="tile-icon refined"><MdSettings className="svg-icon" /></div>
-            <div className="tile-text"><div className="tile-title">Opciones</div><div className="tile-desc">Preferencias y seguridad</div></div>
-          </button>
-
-          <button className="menu-tile primary-tile vertical" onClick={() => setScreen("actividad")}>
-            <div className="tile-icon refined"><MdAccessTime className="svg-icon" /></div>
-            <div className="tile-text"><div className="tile-title">Actividad</div><div className="tile-desc">Audit log y acciones</div></div>
-          </button>
         </div>
       </div>
     );
@@ -494,10 +484,14 @@ export default function App() {
         <div className="vista-content">
           <div className="vista-panel">
             <form onSubmit={agregarIngreso} className="row" style={{ marginBottom: 12 }}>
-              <input className="vista-input" placeholder="Comprobante" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Monto" type="number" value={nuevoMonto} onChange={(e) => setNuevoMonto(e.target.value)} />
-              <input className="vista-input" placeholder="IVA %" type="number" value={nuevoIvaPercent} onChange={(e) => setNuevoIvaPercent(e.target.value)} />
-              <select className="vista-select" value={nuevoPUC} onChange={(e) => setNuevoPUC(e.target.value)}>{Object.entries(pucReferencias).map(([codigo, desc]) => <option key={codigo} value={codigo}>{codigo} - {desc}</option>)}</select>
+              <input className="vista-input" placeholder="Fecha" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Cuenta de fondos" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Monto" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Socio" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Afectación" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Evento" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Entrada" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Producto" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
               <button className="vista-button primary" type="submit" disabled={role !== "coordinador" && !permisosAdministrativo.canAddIngreso}>Agregar</button>
               <button type="button" className="vista-button" onClick={exportBackup} style={{ marginLeft: 8 }}>Exportar backup</button>
             </form>
