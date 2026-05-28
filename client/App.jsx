@@ -1,8 +1,3 @@
-/*
-App.jsx
-Versión actualizada: mantiene persistencia local, audit log y corrige estilos en modo oscuro.
-*/
-
 import React, { useEffect, useState } from "react";
 import "./vista.css";
 import escudo from "/src/assets/escudo.png";
