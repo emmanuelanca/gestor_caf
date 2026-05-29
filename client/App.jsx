@@ -11,8 +11,10 @@ export default function App() {
   const [coordinadorPassword, setCoordinadorPassword] = useState(() => loadFromStorage("coordinadorPassword", "123"));
   const [ingresos, setIngresos] = useState([]);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
-    fetch('http://localhost:5000/api/ingresos')
+    fetch(`${API_URL}/api/ingresos`)
       .then(res => res.json())
       .then(data => setIngresos(data))
       .catch(err => console.error("Error al cargar: ", err));

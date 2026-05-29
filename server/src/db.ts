@@ -26,6 +26,20 @@ const pool = mariadb.createPool({
   connectionLimit: 5
 });
 
+export async function getIngresos() {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const rows = await conn.query("SELECT * FROM ingresos_detallados");
+    return rows;
+  } catch (error) {
+    console.error("Error en getIngresos: ", error);
+    throw error;
+  } finally {
+    if (conn) conn.release();
+  }
+}
+
 export function calendarCreateYear(targetYear: number): void {
   let currentDate = new Date(Date.UTC(targetYear, 0, 1));
   const endDate = new Date(Date.UTC(targetYear, 11, 31));
