@@ -20,14 +20,13 @@ export default function App() {
       .catch(err => console.error("Error al cargar: ", err));
   }, []);
 
-  const [nuevoFecha, setNuevoFecha] = useState();
+  const [nuevoFecha, setNuevoFecha] = useState(() => new Date().toISOString().slice(0, 10));
   const [nuevoMonto, setNuevoMonto] = useState();
   const [nuevoSocio, setNuevoSocio] = useState();
   const [nuevoAfectacion, setNuevoAfectacion] = useState();
   const [nuevoEvento, setNuevoEvento] = useState();
   const [nuevoEntrada, setNuevoEntrada] = useState();
   const [nuevoProducto, setNuevoProducto] = useState();
-
 
   const [compromisos, setCompromisos] = useState(() => loadFromStorage("compromisos", []));
   const [ordenesPago, setOrdenesPago] = useState(() => loadFromStorage("ordenesPago", []));
@@ -50,8 +49,8 @@ export default function App() {
   useEffect(() => saveToStorage("role", role), [role]);
   useEffect(() => saveToStorage("darkMode", darkMode), [darkMode]);
   useEffect(() => saveToStorage("coordinadorPassword", coordinadorPassword), [coordinadorPassword]);
-
   useEffect(() => { document.title = "CAF Finanzas"; }, []);
+
 
   function deepCopy(obj) {
     try { return JSON.parse(JSON.stringify(obj)); } catch { return obj; }
@@ -170,6 +169,7 @@ export default function App() {
       return updated;
     });
 
+    setNuevoFecha(new Date().toISOString().slice(0, 10));
     setNuevoComprobante("");
     setNuevoMonto("");
     setNuevoPUC("112526");
@@ -303,7 +303,7 @@ export default function App() {
         <div className="vista-content">
           <div className="vista-panel">
             <form onSubmit={agregarIngreso} className="row" style={{ marginBottom: 12 }}>
-              <input className="vista-input" placeholder="Fecha" value={nuevoFecha} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Fecha" value={nuevoFecha} onChange={(e) => setNuevoFecha(e.target.value)} type="date" />
               <input className="vista-input" placeholder="Monto" value={nuevoMonto} onChange={(e) => setNuevoComprobante(e.target.value)} />
               <input className="vista-input" placeholder="Socio aportante" value={nuevoSocio} onChange={(e) => setNuevoComprobante(e.target.value)} />
               <input className="vista-input" placeholder="Afectación" value={nuevoAfectacion} onChange={(e) => setNuevoComprobante(e.target.value)} />
