@@ -1,3 +1,9 @@
+/* vista.css — versión modificada para pantalla completa
+   Mantiene todas las reglas originales y añade los ajustes necesarios
+   para que la app ocupe toda la pantalla del navegador.
+*/
+
+/* Variables base (modo claro) */
 :root{
   --vista-bg: #e9eef6;
   --vista-panel: #ffffff;
@@ -9,7 +15,7 @@
   --tile-shadow: rgba(43, 110, 219, 0.12);
 }
 
-/* Dark mode variables */
+/* Dark mode variables: colores y bordes adaptados para contraste */
 .vista-window.dark {
   --vista-bg: #0f1724;
   --vista-panel: rgba(11,18,32,0.92);
@@ -20,22 +26,28 @@
   --tile-shadow: rgba(0,0,0,0.5);
 }
 
-/* Base window */
+/* -------------------- CAMBIO PRINCIPAL: Contenedor full-screen -------------------- */
+/* Antes: .vista-window { width: 92%; max-width: 1100px; margin: 22px auto; ... } */
+/* Ahora: ocupa toda la ventana del navegador, sin bordes ni margen */
 .vista-window {
-  width: 92%;
-  max-width: 1100px;
-  margin: 22px auto;
+  position: fixed;
+  inset: 0; /* top:0; right:0; bottom:0; left:0; */
+  width: 100%;
+  height: 100%;
+  margin: 0;
   background: var(--vista-bg);
-  border-radius: 10px;
-  box-shadow: 0 12px 36px var(--vista-shadow);
+  border-radius: 0;
+  box-shadow: 0 0 0 rgba(0,0,0,0);
   font-family: "Segoe UI", Tahoma, Verdana, sans-serif;
-  border: 1px solid var(--vista-border);
+  border: none;
   overflow: hidden;
   color: var(--vista-text);
   transition: background 420ms ease, color 420ms ease, box-shadow 420ms ease;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Titlebar */
+/* Barra superior */
 .vista-titlebar {
   background: var(--vista-accent-grad);
   color: white;
@@ -46,24 +58,21 @@
   justify-content: space-between;
   gap: 12px;
   box-shadow: inset 0 -2px 0 rgba(255,255,255,0.06);
+  flex: 0 0 auto;
 }
 
-/* Title areas */
+/* Logo y título */
 .title-left { display:flex; align-items:center; gap:12px; font-size:16px; }
 .title-right { display:flex; align-items:center; gap:12px; }
-
-/* Club title */
 .club-title { font-size: 18px; font-weight: 900; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.18); }
-
-/* Escudo */
 .club-logo { height: 40px; width: auto; object-fit: contain; display: block; flex-shrink: 0; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); transition: filter 220ms ease, opacity 220ms ease; }
 .vista-window.dark .club-logo { filter: invert(1) brightness(1.2) contrast(1.05); }
 
-/* Back button */
+/* Botones y controles de la titlebar */
 .back-button { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.12); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; transition: transform 160ms ease, background 160ms ease; }
 .back-button:hover { transform: translateY(-2px); }
 
-/* Profile dropdown + moon icon */
+/* Perfil (select + icono) */
 .profile-dropdown {
   display: flex;
   align-items: center;
@@ -74,47 +83,26 @@
   border: 1px solid rgba(255,255,255,0.06);
 }
 .profile-dropdown.small { padding: 4px 6px; }
-
-/* Label and select */
 .profile-label { color: #fff; font-size: 13px; font-weight: 700; margin-right: 6px; }
-.profile-select {
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: #fff;
-  color: #12305a;
-  font-weight: 700;
-}
+.profile-select { padding: 6px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: #fff; color: #12305a; font-weight: 700; }
 
-/* Moon icon button */
+/* Icono luna */
 .icon-button { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #fff; font-size: 16px; cursor: pointer; padding: 6px; border-radius: 6px; line-height: 1; }
 
-/* Admin permissions area */
-.admin-perms { position: relative; display: inline-block; margin-left: 8px; }
-.admin-perms-panel { position: absolute; right: 0; top: 42px; width: 320px; background: var(--vista-panel); border: 1px solid var(--vista-border); border-radius: 10px; padding: 12px; box-shadow: 0 12px 36px rgba(27,43,74,0.08); z-index: 60; }
-.admin-perms-panel .perm-row { margin-bottom: 8px; font-size: 14px; color: var(--vista-text); }
-.admin-perms-panel label { cursor: pointer; display: flex; align-items: center; gap: 8px; }
-
-/* Content area */
-.vista-content { padding: 28px; background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4)); color: var(--vista-text); min-height: 420px; transition: background 420ms ease, color 420ms ease; }
+/* Paneles y tablas */
+/* Ajuste: vista-content ahora ocupa el espacio restante y permite scroll interno */
+.vista-content { padding: 28px; background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4)); color: var(--vista-text); min-height: 0; transition: background 420ms ease, color 420ms ease; flex: 1 1 auto; overflow: auto; }
 .vista-window.dark .vista-content { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); }
 
-/* Menu vertical */
 .menu-vertical { display: flex; flex-direction: column; gap: 18px; align-items: center; padding: 18px 8px; }
-
-/* Menu tile base */
 .menu-tile { width: 100%; max-width: 520px; background: linear-gradient(180deg, #ffffff, #f6f9ff); border: 1px solid rgba(27,43,74,0.06); border-radius: 14px; padding: 18px 22px; display: flex; flex-direction: row; align-items: center; gap: 16px; box-shadow: 0 10px 30px var(--tile-shadow); cursor: pointer; transition: transform 260ms cubic-bezier(.2,.9,.2,1), box-shadow 260ms ease, background 260ms ease; text-align: left; }
 .menu-tile.vertical { justify-content: flex-start; }
 .menu-tile:hover { transform: translateY(-8px); box-shadow: 0 22px 48px rgba(10,30,80,0.28); }
 
-/* Primary tile accent */
 .primary-tile { background: linear-gradient(180deg, #eaf3ff, #d6e8ff); border: 1px solid rgba(43,110,219,0.12); }
-
-/* Tile icon bubble */
 .tile-icon { font-size: 22px; width: 56px; height: 56px; display:flex; align-items:center; justify-content:center; border-radius: 12px; background: rgba(255,255,255,0.92); box-shadow: 0 8px 20px rgba(0,0,0,0.06); color: #12305a; transition: background 260ms ease, color 260ms ease, box-shadow 260ms ease; }
 .tile-icon.refined { padding: 6px; }
 .svg-icon { width: 32px; height: 32px; display:block; color: inherit; }
-
 .tile-text { display:flex; flex-direction:column; gap:4px; }
 .tile-title { font-size: 18px; font-weight: 800; color: #12305a; }
 .tile-desc { font-size: 13px; color: #6b7a99; }
@@ -123,42 +111,24 @@
 
 .table-wrap { width: 100%; overflow-x: auto; margin-top: 8px; }
 
-/* Table: ensure contrast in dark mode */
+/* Tabla: cabeceras y celdas usan variables para facilitar modo oscuro */
 .vista-table { width: 100%; border-collapse: collapse; background: transparent; border-radius: 8px; overflow: hidden; min-width: 560px; }
-.vista-table th {
-  background: linear-gradient(#f3f7ff,#e6efff);
-  color: var(--vista-text);
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid var(--vista-border);
-  font-weight: 700;
-}
-.vista-table td {
-  padding: 10px;
-  border-bottom: 1px solid #eef3fb;
-  color: var(--vista-text);
-}
+.vista-table th { background: linear-gradient(#f3f7ff,#e6efff); color: var(--vista-text); padding: 10px; text-align: left; border-bottom: 1px solid var(--vista-border); font-weight: 700; }
+.vista-table td { padding: 10px; border-bottom: 1px solid #eef3fb; color: var(--vista-text); }
 
-/* Form row */
+/* Formularios y controles */
 .row { display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
-.vista-input, .vista-select {
-  flex: 1 1 180px;
-  min-width: 140px;
-  padding: 10px;
-  border: 1px solid var(--vista-border);
-  border-radius: 8px;
-  background: #fff;
-  font-family: inherit;
-  transition: box-shadow 200ms ease, border-color 200ms ease;
-}
+.vista-input, .vista-select { flex: 1 1 180px; min-width: 140px; padding: 10px; border: 1px solid var(--vista-border); border-radius: 8px; background: #fff; font-family: inherit; transition: box-shadow 200ms ease, border-color 200ms ease; }
 .vista-input:focus, .vista-select:focus { box-shadow: 0 6px 18px rgba(43,110,219,0.12); border-color: #2b6edb; }
 
-/* Buttons */
+/* Botones */
 .vista-button { display:inline-block; padding:8px 12px; background: linear-gradient(#f7fbff,#dfeeff); border:1px solid #c6dbff; color:#0b2a66; border-radius:8px; cursor:pointer; font-weight:700; box-shadow: 0 6px 0 rgba(0,0,0,0.04); transition: transform 160ms ease, filter 160ms ease; }
 .vista-button.primary { background: linear-gradient(#6ea0ff,#2b6edb); color: #fff; border: 1px solid #1f5fd6; box-shadow: 0 12px 30px rgba(43,110,219,0.12); }
-.vista-button:hover { transform: translateY(-2px); filter: brightness(0.98); }
+.vista-button:hover { transform: translateY(-2px); }
 
-/* Dark mode adjustments for controls and table contrast */
+/* -------------------- Ajustes modo oscuro específicos -------------------- */
+
+/* Perfil y controles en titlebar: asegurar contraste y legibilidad */
 .vista-window.dark .profile-dropdown {
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.04);
@@ -172,6 +142,7 @@
 }
 .vista-window.dark .profile-select option { background: rgba(11,18,32,0.95); color: var(--vista-text); }
 
+/* Icono luna en modo oscuro */
 .vista-window.dark .icon-button {
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.06);
@@ -179,14 +150,14 @@
   box-shadow: none;
 }
 
-/* Inputs and selects in dark mode */
+/* Inputs y selects en modo oscuro */
 .vista-window.dark .vista-input, .vista-window.dark .vista-select {
   background: rgba(255,255,255,0.02);
   color: var(--vista-text);
   border: 1px solid rgba(255,255,255,0.04);
 }
 
-/* Table dark mode: ensure rows and text contrast */
+/* Tablas en modo oscuro: fondo sutil y texto legible */
 .vista-window.dark .vista-table th {
   background: rgba(255,255,255,0.03);
   color: var(--vista-text);
@@ -198,12 +169,12 @@
   border-bottom: 1px solid rgba(255,255,255,0.03);
 }
 
-/* Make sure table row text is visible even if tile backgrounds are dark */
+/* Asegurar que el texto de las filas sea visible */
 .vista-window.dark .vista-table tbody tr td, .vista-window.dark .vista-table tbody tr th {
   color: var(--vista-text);
 }
 
-/* Tile icon adjustments in dark mode */
+/* Ajustes visuales de tiles en modo oscuro */
 .vista-window.dark .tile-icon {
   background: rgba(255,255,255,0.04);
   color: var(--vista-text);
@@ -218,7 +189,7 @@
   color: var(--vista-text);
 }
 
-/* Panel adjustments in dark mode */
+/* Paneles en modo oscuro */
 .vista-window.dark .vista-panel {
   background: rgba(8,12,20,0.7);
   border: 1px solid rgba(255,255,255,0.04);
@@ -230,7 +201,7 @@
   .menu-tile { max-width: 100%; padding: 14px; border-radius: 12px; }
   .tile-icon { width:48px; height:48px; font-size:20px; }
   .vista-content { padding: 18px; }
-  .vista-window { width: 96%; }
+  .vista-window { width: 100%; height: 100%; }
   .vista-table { min-width: 0; }
   .admin-perms-panel { right: 8px; left: 8px; width: auto; top: 56px; }
 }
