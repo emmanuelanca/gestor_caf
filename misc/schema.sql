@@ -229,16 +229,23 @@ CREATE TABLE movimientos_fondos (
     CONSTRAINT fk_movimientos_comprobante FOREIGN KEY (comprobante) REFERENCES comprobantes(id)
 ) ENGINE=InnoDB;
 
-CREATE VIEW vista_eventos AS
-SELECT 
-    e.id,
-    e.fecha,
-    f.anio AS ejercicio,
-    e.nombre,
-    e.tipo,
-    e.condicion,
-    e.observacion
-FROM 
-    eventos e
-JOIN 
-    fechas f ON e.fecha = f.id;
+CREATE VIEW ingresos_detallados AS
+SELECT
+	i.id,
+	f.fecha,
+	cf.nombre AS cuenta_fondos,
+	i.monto,
+	s.apellido AS socio_apellido,
+	s.nombre AS socio_nombre,
+	ai.destino AS afectacion_ingreso,
+	ee.categoria AS entrada_categoria,
+	e.nombre AS evento_nombre,
+	p.nombre AS producto_nombre
+FROM ingresos i
+INNER JOIN fechas f ON i.fecha = f.id
+INNER JOIN cuentas_fondos cf ON i.cuenta_fondos = cf.id
+INNER JOIN socios s ON i.socio = s.id
+INNER JOIN afectacion_ingresos ai ON i.afectacion_ingreso = ai.id
+INNER JOIN entradas ee ON i.entrada = ee.id
+INNER JOIN eventos e ON i.evento = e.id
+INNER JOIN productos p ON i.producto = p.id;
