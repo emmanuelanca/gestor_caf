@@ -4,39 +4,20 @@ import escudo from "/src/assets/escudo.png";
 import { MdAccountBalanceWallet, MdChecklist, MdMenuBook, MdSettings, MdAccessTime } from "react-icons/md";
 import { loadFromStorage, saveToStorage, clearStorage } from "./storage";
 
-const DEFAULT_IVA_PERCENT = 21;
-const AUDIT_LIMIT = 5000;
-
-function nowISO() {
-  return new Date().toISOString();
-}
-
-function normalizeComprobante(raw) {
-  if (!raw && raw !== 0) return "";
-  let s = String(raw).trim().toUpperCase();
-  s = s.replace(/[-\s]/g, "");
-  s = s.replace(/^0+/, "");
-  return s;
-}
-
 export default function App() {
   const [screen, setScreen] = useState("menu");
   const [role, setRole] = useState(() => loadFromStorage("role", "administrativo"));
   const [darkMode, setDarkMode] = useState(() => loadFromStorage("darkMode", false));
   const [coordinadorPassword, setCoordinadorPassword] = useState(() => loadFromStorage("coordinadorPassword", "123"));
+  const [ingresos, setIngresos] = useState([]);
 
-  const [pucReferencias, setPucReferencias] = useState(() =>
-    loadFromStorage("pucReferencias", {
-      "112526": "Eventos Sociales - Ingresos Operativos",
-      "115527": "Entradas Fútbol Cat. General",
-      "115528": "Entradas Fútbol Cat. Socio",
-      "123537": "Alquiler Salón",
-      "213050": "Aportes sobre Sueldo Anual Complementario",
-      "223370": "Nafta Súper",
-    })
-  );
+  useEffect(() => {
+    fetch('http://localhost:5000/api/ingresos')
+      .then(res => res.json())
+      .then(data => setIngresos(data))
+      .catch(err => console.error("Error al cargar: ", err));
+  }, []);
 
-  const [ingresos, setIngresos] = useState(() => loadFromStorage("ingresos", []));
   const [compromisos, setCompromisos] = useState(() => loadFromStorage("compromisos", []));
   const [ordenesPago, setOrdenesPago] = useState(() => loadFromStorage("ordenesPago", []));
   const [permisosAdministrativo, setPermisosAdministrativo] = useState(() =>
@@ -46,17 +27,14 @@ export default function App() {
 
   const [nuevoComprobante, setNuevoComprobante] = useState("");
   const [nuevoMonto, setNuevoMonto] = useState("");
-  const [nuevoIvaPercent, setNuevoIvaPercent] = useState(DEFAULT_IVA_PERCENT);
   const [nuevoPUC, setNuevoPUC] = useState("112526");
 
   const totalIngresos = ingresos.reduce((acc, i) => acc + (i.total || 0), 0);
   const totalCompromisos = compromisos.reduce((acc, c) => acc + (c.total || 0), 0);
   const balance = totalIngresos - totalCompromisos;
 
-  useEffect(() => saveToStorage("ingresos", ingresos), [ingresos]);
   useEffect(() => saveToStorage("compromisos", compromisos), [compromisos]);
   useEffect(() => saveToStorage("ordenesPago", ordenesPago), [ordenesPago]);
-  useEffect(() => saveToStorage("pucReferencias", pucReferencias), [pucReferencias]);
   useEffect(() => saveToStorage("permisosAdministrativo", permisosAdministrativo), [permisosAdministrativo]);
   useEffect(() => saveToStorage("auditLogs", auditLogs), [auditLogs]);
   useEffect(() => saveToStorage("role", role), [role]);
@@ -145,18 +123,6 @@ export default function App() {
     }
   };
 
-  const abrirPUCAdmin = () => {
-    if (role !== "coordinador" && !permisosAdministrativo.canOpenPUC) {
-      alert("Acceso denegado.");
-      logAction({ action: "puc_abrir_denegado", resource: "puc_ui", before: null, after: null });
-      return;
-    }
-    logAction({ action: "puc_abierto", resource: "puc_ui", before: null, after: pucReferencias });
-    const nuevaVentana = window.open("", "PUCAdmin", "width=700,height=520");
-    const pucJson = JSON.stringify(pucReferencias).replace(/</g, "\\u003c");
-    nuevaVentana.document.write(`<html><head><meta charset="utf-8"><title>PUC</title></head><body><pre id="out"></pre><script>const puc=${pucJson};document.getElementById('out').innerText=JSON.stringify(puc,null,2);</script></body></html>`);
-    nuevaVentana.document.close();
-  };
 
   const agregarIngreso = (e) => {
     e.preventDefault();
@@ -196,150 +162,9 @@ export default function App() {
 
     setNuevoComprobante("");
     setNuevoMonto("");
-    setNuevoIvaPercent(DEFAULT_IVA_PERCENT);
     setNuevoPUC("112526");
   };
 
-  const agregarCompromiso = () => {
-    if (role !== "coordinador" && !permisosAdministrativo.canAddCompromiso) {
-      alert("No tenés permiso para agregar compromisos.");
-      logAction({ action: "compromiso_creacion_denegada", resource: "compromisos" });
-      return;
-    }
-    const proveedor = prompt("Proveedor / Responsable:");
-    if (!proveedor) return;
-    const montoStr = prompt("Monto:");
-    const monto = parseFloat(montoStr || "0");
-    if (!monto || isNaN(monto)) return alert("Monto inválido.");
-    const ivaInput = prompt(`IVA % (por defecto ${DEFAULT_IVA_PERCENT})`) || String(DEFAULT_IVA_PERCENT);
-    const ivaPercentInput = Number(ivaInput);
-    const ivaPercent = isNaN(ivaPercentInput) ? DEFAULT_IVA_PERCENT : ivaPercentInput;
-    const { iva, total } = calcIva(monto, ivaPercent);
-    const nuevo = {
-      id: `comp-${Date.now()}`,
-      fecha: new Date().toISOString().split("T")[0],
-      monto,
-      ivaPercent,
-      ivaMonto: iva,
-      total,
-      proveedor,
-      puc: "213050",
-      estado: "nuevo",
-      version: 1,
-      updatedAt: nowISO(),
-    };
-
-    setCompromisos((prev) => {
-      const before = deepCopy(prev);
-      const updated = [...prev, nuevo];
-      logAction({ action: "compromiso_creado", resource: `compromiso:${nuevo.id}`, before, after: updated });
-      return updated;
-    });
-  };
-
-  const marcarPagado = (idx) => {
-    const comp = compromisos[idx];
-    if (!comp) return;
-    const ok = confirm(`Marcar compromiso de ${comp.proveedor} por $${comp.total} como PAGADO?`);
-    if (!ok) return;
-    setCompromisos((prev) => {
-      const before = deepCopy(prev);
-      const copia = prev.map((c, i) => (i === idx ? { ...c, estado: "pagado", version: (c.version || 1) + 1, updatedAt: nowISO() } : c));
-      logAction({ action: "compromiso_marcado_pagado", resource: `compromiso:${comp.id}`, before, after: copia });
-      return copia;
-    });
-  };
-
-  const marcarNoPagado = (idx) => {
-    const comp = compromisos[idx];
-    if (!comp) return;
-    const ok = confirm(`Revertir compromiso de ${comp.proveedor} a NO PAGADO?`);
-    if (!ok) return;
-    setCompromisos((prev) => {
-      const before = deepCopy(prev);
-      const copia = prev.map((c, i) => (i === idx ? { ...c, estado: "nuevo", version: (c.version || 1) + 1, updatedAt: nowISO() } : c));
-      logAction({ action: "compromiso_marcado_no_pagado", resource: `compromiso:${comp.id}`, before, after: copia });
-      return copia;
-    });
-  };
-
-  const generarOrdenPago = (comp, idx = null) => {
-    const orden = {
-      id: `OP-${Date.now()}`,
-      proveedor: comp.proveedor || "N/A",
-      monto: comp.monto,
-      iva: comp.ivaMonto,
-      total: comp.total,
-      fecha: nowISO(),
-      origenCompromisoId: comp.id || null,
-      version: 1,
-      updatedAt: nowISO(),
-    };
-    setOrdenesPago((prev) => {
-      const before = deepCopy(prev);
-      const updated = [...prev, orden];
-      logAction({ action: "orden_pago_generada", resource: `orden:${orden.id}`, before, after: updated });
-      return updated;
-    });
-    alert(`Orden de pago generada (demo):\nProveedor: ${orden.proveedor}\nTotal: $${orden.total}\nID: ${orden.id}`);
-  };
-
-  const togglePermiso = (key) => {
-    setPermisosAdministrativo((prev) => {
-      const before = deepCopy(prev);
-      const updated = { ...prev, [key]: !prev[key] };
-      logAction({ action: "permiso_alternado", resource: `permiso:${key}`, before, after: updated });
-      return updated;
-    });
-  };
-
-  const [confirmCode, setConfirmCode] = useState(null);
-  const [codeSentAt, setCodeSentAt] = useState(null);
-  const [codeTargetEmail, setCodeTargetEmail] = useState(null);
-
-  const sendConfirmationCodeToEmail = () => {
-    const target = prompt("Ingrese el correo al que enviar el código (ej: tu@correo.com):");
-    if (!target) return;
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setConfirmCode(code);
-    setCodeSentAt(Date.now());
-    setCodeTargetEmail(target);
-    const mailto = `mailto:${encodeURIComponent(target)}?subject=${encodeURIComponent("Código de confirmación")}&body=${encodeURIComponent("Código: " + code)}`;
-    window.open(mailto);
-    alert(`Código generado (demo): ${code}`);
-    logAction({ action: "codigo_restablecimiento_enviado", resource: "password_reset", meta: { target } });
-  };
-
-  const verifyAndResetPassword = () => {
-    if (!confirmCode) {
-      alert("Primero generá y enviá un código.");
-      return;
-    }
-    const entered = prompt(`Ingrese el código enviado a ${codeTargetEmail}:`);
-    if (!entered) return;
-    const elapsed = Date.now() - (codeSentAt || 0);
-    if (elapsed > 15 * 60 * 1000) {
-      alert("El código expiró.");
-      setConfirmCode(null);
-      setCodeSentAt(null);
-      setCodeTargetEmail(null);
-      logAction({ action: "codigo_restablecimiento_expirado", resource: "password_reset", meta: { target: codeTargetEmail } });
-      return;
-    }
-    if (entered.trim() !== confirmCode) {
-      alert("Código incorrecto.");
-      logAction({ action: "codigo_restablecimiento_incorrecto", resource: "password_reset", meta: { target: codeTargetEmail } });
-      return;
-    }
-    const newPass = prompt("Ingrese nueva contraseña:");
-    if (!newPass) return alert("Contraseña no cambiada.");
-    setCoordinadorPassword(newPass);
-    setConfirmCode(null);
-    setCodeSentAt(null);
-    setCodeTargetEmail(null);
-    alert("Contraseña de Coordinador actualizada.");
-    logAction({ action: "password_restaurada", resource: "password_reset" });
-  };
 
   function ActivityPage() {
     const [items, setItems] = useState(() => loadFromStorage("auditLogs", []));
@@ -416,7 +241,6 @@ export default function App() {
     );
   }
 
-  // Renders (menu, ingresos, compromisos, opciones, actividad)
   if (screen === "menu") {
     return (
       <div className={`vista-window ${darkMode ? "dark" : ""}`}>
@@ -447,16 +271,6 @@ export default function App() {
             <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
             <div className="tile-text"><div className="tile-title">Ingresos</div><div className="tile-desc">Registrar y ver ingresos</div></div>
           </button>
-
-          <button className="menu-tile primary-tile vertical" onClick={() => setScreen("compromisos")}>
-            <div className="tile-icon refined"><MdChecklist className="svg-icon" /></div>
-            <div className="tile-text"><div className="tile-title">Compromisos</div><div className="tile-desc">Registrar y ver compromisos</div></div>
-          </button>
-
-          <button className="menu-tile primary-tile vertical" onClick={abrirPUCAdmin}>
-            <div className="tile-icon refined"><MdMenuBook className="svg-icon" /></div>
-            <div className="tile-text"><div className="tile-title">PUC</div><div className="tile-desc">Administrar cuentas</div></div>
-          </button>
         </div>
       </div>
     );
@@ -480,9 +294,8 @@ export default function App() {
           <div className="vista-panel">
             <form onSubmit={agregarIngreso} className="row" style={{ marginBottom: 12 }}>
               <input className="vista-input" placeholder="Fecha" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Cuenta de fondos" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
               <input className="vista-input" placeholder="Monto" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Socio" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Socio aportante" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
               <input className="vista-input" placeholder="Afectación" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
               <input className="vista-input" placeholder="Evento" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
               <input className="vista-input" placeholder="Entrada" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
@@ -493,86 +306,27 @@ export default function App() {
 
             <div className="table-wrap">
               <table className="vista-table">
-                <thead><tr><th>Fecha</th><th>Monto</th><th>IVA</th><th>Total</th><th>Comprobante</th><th>PUC</th></tr></thead>
-                <tbody>{ingresos.map((i, idx) => (<tr key={i.id || idx}><td>{i.fecha}</td><td>${i.monto}</td><td>{i.ivaPercent}% (${i.ivaMonto})</td><td>${i.total}</td><td>{i.comprobante}</td><td title={pucReferencias[i.puc]}>{i.puc}</td></tr>))}</tbody>
+                <thead><tr><th>Fecha</th><th>Cuenta de fondos</th><th>Monto</th><th>Socio aportante</th><th>Afectación</th><th>Evento</th><th>Entrada</th><th>Producto</th></tr></thead>
+                <tbody>
+                  {ingresos && ingresos.map((ingreso, index) => (
+                    <tr key={index}>
+                      <td>{ingreso.fecha}</td>
+                      <td>{ingreso.cuenta_fondos}</td>
+                      <td>{ingreso.monto}</td>
+                      <td>{ingreso.socio_apellido} {ingreso.socio_nombre}</td>
+                      <td>{ingreso.afectacion_ingreso}</td>
+                      <td>{ingreso.evento_nombre}</td>
+                      <td>{ingreso.entrada_categoria}</td>
+                      <td>{ingreso.producto_nombre}</td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
 
             <div style={{ marginTop: 12 }}><p>Total Ingresos: ${totalIngresos}</p></div>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  if (screen === "compromisos") {
-    return (
-      <div className={`vista-window ${darkMode ? "dark" : ""}`}>
-        <div className="vista-titlebar">
-          <div className="title-left"><button className="vista-button back-button" onClick={() => setScreen("menu")}>←</button><div className="club-title">Compromisos</div></div>
-          <div className="title-right">
-            <div className="profile-dropdown small">
-              <label className="profile-label" htmlFor="profileSelect3">Perfil</label>
-              <select id="profileSelect3" className="profile-select" value={role} onChange={handleProfileChange}><option value="administrativo">Administrativo</option><option value="coordinador">Coordinador</option></select>
-              <button className="icon-button" onClick={() => setDarkMode((d) => !d)}>🌙</button>
-            </div>
-          </div>
-        </div>
-
-        <div className="vista-content">
-          <div className="vista-panel">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <div><strong>Compromisos</strong><div style={{ fontSize: 13, color: darkMode ? "#9fb0d9" : "#6b7a99" }}>Lista de compromisos registrados</div></div>
-              <div><button className="vista-button" onClick={agregarCompromiso} disabled={role !== "coordinador" && !permisosAdministrativo.canAddCompromiso}>Agregar compromiso</button></div>
-            </div>
-
-            <div className="table-wrap">
-              <table className="vista-table">
-                <thead><tr><th>Fecha</th><th>Proveedor</th><th>Monto</th><th>IVA</th><th>Total</th><th>PUC</th><th>Estado</th><th>Acciones</th></tr></thead>
-                <tbody>{compromisos.map((c, idx) => (<tr key={c.id || idx}><td>{c.fecha}</td><td>{c.proveedor}</td><td>${c.monto}</td><td>{c.ivaPercent}% (${c.ivaMonto})</td><td>${c.total}</td><td title={pucReferencias[c.puc]}>{c.puc}</td><td>{c.estado}</td><td><button className="vista-button" onClick={() => generarOrdenPago(c, idx)}>Orden</button>{c.estado !== "pagado" ? (<button className="vista-button" style={{ marginLeft: 6 }} onClick={() => marcarPagado(idx)}>Marcar pagado</button>) : (<button className="vista-button" style={{ marginLeft: 6 }} onClick={() => marcarNoPagado(idx)}>Marcar no pagado</button>)}</td></tr>))}</tbody>
-              </table>
-            </div>
-
-            <div style={{ marginTop: 12 }}><p>Total Ingresos: ${totalIngresos}</p><p>Total Compromisos: ${totalCompromisos}</p><p><strong>Balance: ${balance}</strong></p></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (screen === "opciones") {
-    return (
-      <div className={`vista-window ${darkMode ? "dark" : ""}`}>
-        <div className="vista-titlebar"><div className="title-left"><button className="vista-button back-button" onClick={() => setScreen("menu")}>←</button><div className="club-title">Opciones</div></div></div>
-        <div className="vista-content">
-          <div className="vista-panel">
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div><strong>Restablecer contraseña (olvidada)</strong><div style={{ fontSize: 13, color: darkMode ? "#9fb0d9" : "#6b7a99" }}>Generá un código y envialo al correo que elijas.</div></div>
-                <div><button className="vista-button" onClick={sendConfirmationCodeToEmail}>Enviar código</button><button className="vista-button" style={{ marginLeft: 8 }} onClick={verifyAndResetPassword}>Ingresar código</button></div>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div><strong>Cambiar contraseña (logueado)</strong><div style={{ fontSize: 13, color: darkMode ? "#9fb0d9" : "#6b7a99" }}>Si estás logueado como Coordinador, podés cambiar la contraseña ingresando la actual.</div></div>
-                <div><button className="vista-button" onClick={() => { const current = prompt("Ingrese la contraseña actual:"); if (current !== coordinadorPassword) return alert("Contraseña incorrecta."); const newPass = prompt("Ingrese nueva contraseña:"); if (!newPass) return; setCoordinadorPassword(newPass); alert("Contraseña actualizada."); logAction({ action: "cambio_contrasena_exitoso", resource: "password_change" }); }} disabled={role !== "coordinador" && !permisosAdministrativo.canChangePassword}>Cambiar</button></div>
-              </div>
-
-              <div style={{ marginTop: 12 }}>
-                <button className="vista-button" onClick={exportBackup}>Exportar backup completo</button>
-                <button className="vista-button" style={{ marginLeft: 8 }} onClick={() => { if (confirm("¿Borrar todo el localStorage de la app? Esto eliminará datos locales.")) { clearStorage(); window.location.reload(); } }}>Borrar datos locales</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (screen === "actividad") {
-    return (
-      <div className={`vista-window ${darkMode ? "dark" : ""}`}>
-        <div className="vista-titlebar"><div className="title-left"><button className="vista-button back-button" onClick={() => setScreen("menu")}>←</button><div className="club-title">Actividad</div></div></div>
-        <div className="vista-content"><ActivityPage /></div>
       </div>
     );
   }
