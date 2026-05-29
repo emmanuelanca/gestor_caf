@@ -20,6 +20,15 @@ export default function App() {
       .catch(err => console.error("Error al cargar: ", err));
   }, []);
 
+  const [nuevoFecha, setNuevoFecha] = useState();
+  const [nuevoMonto, setNuevoMonto] = useState();
+  const [nuevoSocio, setNuevoSocio] = useState();
+  const [nuevoAfectacion, setNuevoAfectacion] = useState();
+  const [nuevoEvento, setNuevoEvento] = useState();
+  const [nuevoEntrada, setNuevoEntrada] = useState();
+  const [nuevoProducto, setNuevoProducto] = useState();
+
+
   const [compromisos, setCompromisos] = useState(() => loadFromStorage("compromisos", []));
   const [ordenesPago, setOrdenesPago] = useState(() => loadFromStorage("ordenesPago", []));
   const [permisosAdministrativo, setPermisosAdministrativo] = useState(() =>
@@ -28,7 +37,6 @@ export default function App() {
   const [auditLogs, setAuditLogs] = useState(() => loadFromStorage("auditLogs", []));
 
   const [nuevoComprobante, setNuevoComprobante] = useState("");
-  const [nuevoMonto, setNuevoMonto] = useState("");
   const [nuevoPUC, setNuevoPUC] = useState("112526");
 
   const totalIngresos = ingresos.reduce((acc, i) => acc + (i.total || 0), 0);
@@ -295,13 +303,13 @@ export default function App() {
         <div className="vista-content">
           <div className="vista-panel">
             <form onSubmit={agregarIngreso} className="row" style={{ marginBottom: 12 }}>
-              <input className="vista-input" placeholder="Fecha" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Monto" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Socio aportante" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Afectación" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Evento" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Entrada" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Producto" value={nuevoComprobante} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Fecha" value={nuevoFecha} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Monto" value={nuevoMonto} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Socio aportante" value={nuevoSocio} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Afectación" value={nuevoAfectacion} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Evento" value={nuevoEvento} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Entrada" value={nuevoEntrada} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Producto" value={nuevoProducto} onChange={(e) => setNuevoComprobante(e.target.value)} />
               <button className="vista-button primary" type="submit" disabled={role !== "coordinador" && !permisosAdministrativo.canAddIngreso}>Agregar</button>
               <button type="button" className="vista-button" onClick={exportBackup} style={{ marginLeft: 8 }}>Exportar backup</button>
             </form>
