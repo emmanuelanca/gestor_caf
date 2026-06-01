@@ -4,14 +4,14 @@ import escudo from "/src/assets/escudo.png";
 import { MdAccountBalanceWallet, MdChecklist, MdMenuBook, MdSettings, MdAccessTime } from "react-icons/md";
 import { loadFromStorage, saveToStorage, clearStorage } from "./storage";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function App() {
   const [screen, setScreen] = useState("menu");
   const [role, setRole] = useState(() => loadFromStorage("role", "administrativo"));
   const [darkMode, setDarkMode] = useState(() => loadFromStorage("darkMode", false));
   const [coordinadorPassword, setCoordinadorPassword] = useState(() => loadFromStorage("coordinadorPassword", "123"));
   const [ingresos, setIngresos] = useState([]);
-
-  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     fetch(`${API_URL}/api/ingresos`)
