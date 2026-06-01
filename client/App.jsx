@@ -21,12 +21,12 @@ export default function App() {
   }, []);
 
   const [nuevoFecha, setNuevoFecha] = useState(() => new Date().toISOString().slice(0, 10));
-  const [nuevoMonto, setNuevoMonto] = useState();
-  const [nuevoSocio, setNuevoSocio] = useState();
-  const [nuevoAfectacion, setNuevoAfectacion] = useState();
-  const [nuevoEvento, setNuevoEvento] = useState();
-  const [nuevoEntrada, setNuevoEntrada] = useState();
-  const [nuevoProducto, setNuevoProducto] = useState();
+  const [nuevoMonto, setNuevoMonto] = useState("");
+  const [nuevoSocio, setNuevoSocio] = useState("");
+  const [nuevoAfectacion, setNuevoAfectacion] = useState("");
+  const [nuevoEvento, setNuevoEvento] = useState("");
+  const [nuevoEntrada, setNuevoEntrada] = useState("");
+  const [nuevoProducto, setNuevoProducto] = useState("");
 
   const [compromisos, setCompromisos] = useState(() => loadFromStorage("compromisos", []));
   const [ordenesPago, setOrdenesPago] = useState(() => loadFromStorage("ordenesPago", []));
@@ -304,12 +304,12 @@ export default function App() {
           <div className="vista-panel">
             <form onSubmit={agregarIngreso} className="row" style={{ marginBottom: 12 }}>
               <input className="vista-input" placeholder="Fecha" value={nuevoFecha} onChange={(e) => setNuevoFecha(e.target.value)} type="date" />
-              <input className="vista-input" placeholder="Monto" value={nuevoMonto} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Socio aportante" value={nuevoSocio} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Afectación" value={nuevoAfectacion} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Evento" value={nuevoEvento} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Entrada" value={nuevoEntrada} onChange={(e) => setNuevoComprobante(e.target.value)} />
-              <input className="vista-input" placeholder="Producto" value={nuevoProducto} onChange={(e) => setNuevoComprobante(e.target.value)} />
+              <input className="vista-input" placeholder="Monto" value={nuevoMonto} onChange={(e) => setNuevoMonto(e.target.value)} />
+              <input className="vista-input" placeholder="Socio aportante" value={nuevoSocio} onChange={(e) => setNuevoSocio(e.target.value)} />
+              <input className="vista-input" placeholder="Afectación" value={nuevoAfectacion} onChange={(e) => setNuevoAfectacion(e.target.value)} />
+              <input className="vista-input" placeholder="Evento" value={nuevoEvento} onChange={(e) => setNuevoEvento(e.target.value)} />
+              <input className="vista-input" placeholder="Entrada" value={nuevoEntrada} onChange={(e) => setNuevoEntrada(e.target.value)} />
+              <input className="vista-input" placeholder="Producto" value={nuevoProducto} onChange={(e) => setNuevoProducto(e.target.value)} />
               <button className="vista-button primary" type="submit" disabled={role !== "coordinador" && !permisosAdministrativo.canAddIngreso}>Agregar</button>
               <button type="button" className="vista-button" onClick={exportBackup} style={{ marginLeft: 8 }}>Exportar backup</button>
             </form>
