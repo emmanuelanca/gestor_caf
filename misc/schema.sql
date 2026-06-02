@@ -244,8 +244,8 @@ SELECT
 FROM ingresos i
 INNER JOIN fechas f ON i.fecha = f.id
 INNER JOIN cuentas_fondos cf ON i.cuenta_fondos = cf.id
-INNER JOIN socios s ON i.socio = s.id
-INNER JOIN afectacion_ingresos ai ON i.afectacion_ingreso = ai.id
-INNER JOIN entradas ee ON i.entrada = ee.id
-INNER JOIN eventos e ON i.evento = e.id
-INNER JOIN productos p ON i.producto = p.id;
+LEFT JOIN socios s ON i.socio = s.id
+LEFT JOIN afectacion_ingresos ai ON i.afectacion_ingreso = ai.id
+LEFT JOIN entradas ee ON i.entrada = ee.id
+LEFT JOIN eventos e ON i.evento = e.id
+LEFT JOIN productos p ON i.producto = p.id;
