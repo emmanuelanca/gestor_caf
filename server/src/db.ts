@@ -1,8 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as mariadb from 'mariadb';
 
-const RESTRICTED_TABLES: string[] = ['ingresos', 'compromisos'];
-
 dotenv.config();
 
 interface CalendarEntry {
@@ -59,7 +57,7 @@ export function calendarCreateYear(targetYear: number): void {
     const dateString = `${year}-${monthString}-${dayString}`;
     const yearMonth = `${year}-${monthString}`;
 
-    dimensionCreate('fechas', {
+    rowCreate('fechas', {
       'fecha': dateString,
       'anio': year,
       'mes': month,
@@ -75,14 +73,10 @@ export function calendarCreateYear(targetYear: number): void {
   }
 }
 
-export async function dimensionCreate(
+export async function rowCreate(
   dimension: string,
   args: Record<string, any>
 ): Promise<void> {
-  if (RESTRICTED_TABLES.includes(dimension.toLowerCase())) {
-    throw new Error(`La operación no está permitida para la tabla restringida: ${dimension}`);
-  }
-
   const columns = Object.keys(args).join(', ');
   const placeholders = Object.keys(args).map(() => '?').join(', ');
   const values = Object.values(args);
@@ -94,15 +88,11 @@ export async function dimensionCreate(
   console.log(`Registro creado con éxito en la dimensión: ${dimension}`);
 }
 
-export async function dimensionEdit(
+export async function rowEdit(
   dimension: string,
   id: number,
   args: Record<string, any>
 ): Promise<void> {
-  if (RESTRICTED_TABLES.includes(dimension.toLowerCase())) {
-    throw new Error(`La operación no está permitida para la tabla restringida: ${dimension}`);
-  }
-
   const assignments = Object.keys(args).map((key) => `${key} = ?`).join(', ');
   const values = [...Object.values(args), id];
 
@@ -113,14 +103,10 @@ export async function dimensionEdit(
   console.log(`Registro ${id} actualizado con éxito en la dimensión: ${dimension}`);
 }
 
-export async function dimensionDelete(
+export async function rowDelete(
   dimension: string,
   id: number
 ): Promise<void> {
-  if (RESTRICTED_TABLES.includes(dimension.toLowerCase())) {
-    throw new Error(`La operación no está permitida para la tabla restringida: ${dimension}`);
-  }
-
   const query = `DELETE FROM ${dimension} WHERE id = ?`;
 
   await pool.query(query, [id]);
@@ -154,7 +140,7 @@ export async function pucCreate(
   args: Record<string, any>
 ): Promise<void> {
   const codigo = `${await pucGetHierarchy(padre)}.${subnivel}`
-  await dimensionCreate("puc", {
+  await rowCreate("puc", {
     ...args,
     padre: padre,
     subnivel: subnivel,

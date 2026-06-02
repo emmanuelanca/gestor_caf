@@ -6,13 +6,13 @@ export async function createDimensionDummies(): Promise<void> {
   db.calendarCreateYear(2026)
 
   for (let i: number = 1; i <= nItems; i++) {
-    db.dimensionCreate('afectacion_ingresos', {
+    db.rowCreate('afectacion_ingresos', {
       'destino': `Afectación${i}`
     })
   }
 
   for (let i: number = 1; i <= nItems; i++) {
-    db.dimensionCreate('cuentas_fondos', {
+    db.rowCreate('cuentas_fondos', {
       'nombre': `Dummy${i}`,
       'tipo': `Tipo${i}`,
       'institucion': `Institucion${i}`,
@@ -23,7 +23,7 @@ export async function createDimensionDummies(): Promise<void> {
   }
 
   for (let i: number = 1; i <= nItems; i++) {
-    db.dimensionCreate('dependencias', {
+    db.rowCreate('dependencias', {
       'nombre': `Dependencia${i}`,
       'tipo': `Tipo${i}`,
       'descripcion': `Aquí se describe la dependencia ${i}`
@@ -31,7 +31,7 @@ export async function createDimensionDummies(): Promise<void> {
   }
 
   for (let i: number = 1; i <= nItems; i++) {
-    db.dimensionCreate('entradas', {
+    db.rowCreate('entradas', {
       'categoria': `Categoría${i}`,
       'tipo': `Tipo${i}`,
       'condiciones': `Condiciones${i}`,
@@ -40,7 +40,7 @@ export async function createDimensionDummies(): Promise<void> {
   }
 
   for (let i: number = 1; i <= nItems; i++) {
-    db.dimensionCreate('eventos', {
+    db.rowCreate('eventos', {
       'fecha': i,
       'nombre': `Nombre${i}`,
       'tipo': `Tipo${i}`,
@@ -50,13 +50,13 @@ export async function createDimensionDummies(): Promise<void> {
   }
 
   for (let i: number = 1; i <= nItems; i++) {
-    db.dimensionCreate('honorarios', {
+    db.rowCreate('honorarios', {
       'concepto': `Honorarios${i}`,
     })
   }
 
   for (let i: number = 1; i <= nItems; i++) {
-    db.dimensionCreate('insumos', {
+    db.rowCreate('insumos', {
       'nombre': `Insumo${i}`,
       'tipo': `Tipo${i}`,
       'unidad_medida': `Unidad${i}`,
@@ -66,19 +66,19 @@ export async function createDimensionDummies(): Promise<void> {
   }
 
   for (let i: number = 1; i <= nItems; i++) {
-    db.dimensionCreate('ligas', {
+    db.rowCreate('ligas', {
       'nombre': `Liga${i}`
     })
   }
 
   for (let i: number = 1; i <= nItems; i++) {
-    db.dimensionCreate('personal_deportivo', {
+    db.rowCreate('personal_deportivo', {
       'concepto': `Personal${i}`
     })
   }
 
   for (let i: number = 1; i <= nItems; i++) {
-    db.dimensionCreate('productos', {
+    db.rowCreate('productos', {
       'nombre': `Producto${i}`,
       'categoria': `Categoría${i}`,
       'subcategoria': `Subcategoría${i}`
@@ -86,14 +86,14 @@ export async function createDimensionDummies(): Promise<void> {
   }
 
   for (let i: number = 1; i <= nItems; i++) {
-    db.dimensionCreate('servicios', {
+    db.rowCreate('servicios', {
       'descripcion': `Aquí se describe el servicio ${i}`,
       'observaciones': `Aquí se observa el servicio ${i}`
     })
   }
 
   for (let i: number = 1; i <= nItems; i++) {
-    db.dimensionCreate('socios_categorias', {
+    db.rowCreate('socios_categorias', {
       'nombre': `CategoríaDeSocio${i}`,
       'descripcion': `Aquí se describe la categoría ${i} de socio`,
     })
