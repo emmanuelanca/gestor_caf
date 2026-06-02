@@ -23,7 +23,7 @@ app.post('/api/ingresos', async (req, res) => {
   try {
     const resultado = await db.rowCreate('ingresos', {
       'fecha': 1,
-      'cuenta_fondos': 1,
+      'cuenta_fondos': req.body.cuentaFondos ? parseFloat(req.body.cuentaFondos) : null,
       'monto': req.body.monto ? parseFloat(req.body.monto) : null,
       'socio': req.body.socio ? parseInt(req.body.socio) : null,
       'afectacion_ingreso': req.body.afectacion ? parseInt(req.body.afectacion) : null,

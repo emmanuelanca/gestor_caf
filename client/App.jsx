@@ -21,6 +21,7 @@ export default function App() {
   }, []);
 
   const [nuevoFecha, setNuevoFecha] = useState(() => new Date().toISOString().slice(0, 10));
+  const [nuevoCuentaFondos, setNuevoCuentaFondos] = useState("");
   const [nuevoMonto, setNuevoMonto] = useState("");
   const [nuevoSocio, setNuevoSocio] = useState("");
   const [nuevoAfectacion, setNuevoAfectacion] = useState("");
@@ -32,7 +33,7 @@ export default function App() {
     try {
       const values = {
         'fecha': 1,
-        'cuenta_fondos': 1,
+        'cuentaFondos': nuevoCuentaFondos,
         'monto': nuevoMonto,
         'socio': nuevoSocio,
         'afectacion': nuevoAfectacion,
@@ -339,6 +340,7 @@ export default function App() {
           <div className="vista-panel">
             <form onSubmit={agregarIngreso} className="row" style={{ marginBottom: 12 }}>
               <input className="vista-input" placeholder="Fecha" value={nuevoFecha} onChange={(e) => setNuevoFecha(e.target.value)} type="date" />
+              <input className="vista-input" placeholder="Cuenta de fondos" value={nuevoCuentaFondos} onChange={(e) => setNuevoCuentaFondos(e.target.value)} />
               <input className="vista-input" placeholder="Monto" value={nuevoMonto} onChange={(e) => setNuevoMonto(e.target.value)} />
               <input className="vista-input" placeholder="Socio aportante" value={nuevoSocio} onChange={(e) => setNuevoSocio(e.target.value)} />
               <input className="vista-input" placeholder="Afectación" value={nuevoAfectacion} onChange={(e) => setNuevoAfectacion(e.target.value)} />
