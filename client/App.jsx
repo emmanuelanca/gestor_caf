@@ -28,6 +28,41 @@ export default function App() {
   const [nuevoEntrada, setNuevoEntrada] = useState("");
   const [nuevoProducto, setNuevoProducto] = useState("");
 
+  const handleInsertIngresos = async () => {
+    try {
+      const values = {
+        'fecha': 1,
+        'cuenta_fondos': 1,
+        'monto': nuevoMonto,
+        'socio': nuevoSocio,
+        'afectacion': nuevoAfectacion,
+        'evento': nuevoEvento,
+        'entrada': nuevoEntrada,
+        'producto': nuevoProducto
+      }
+
+      await fetch(`${API_URL}/api/ingresos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values)
+      });
+
+      alert('Ingreso registrado correctamente.');
+
+
+    } catch (error) {
+      console.error(error);
+      alert('Hubo un error al guardar el ingreso.');
+    }
+
+    setNuevoMonto("");
+    setNuevoSocio("");
+    setNuevoAfectacion("");
+    setNuevoEvento("");
+    setNuevoEntrada("");
+    setNuevoProducto("");
+  };
+
   const [compromisos, setCompromisos] = useState(() => loadFromStorage("compromisos", []));
   const [ordenesPago, setOrdenesPago] = useState(() => loadFromStorage("ordenesPago", []));
   const [permisosAdministrativo, setPermisosAdministrativo] = useState(() =>
@@ -310,7 +345,7 @@ export default function App() {
               <input className="vista-input" placeholder="Evento" value={nuevoEvento} onChange={(e) => setNuevoEvento(e.target.value)} />
               <input className="vista-input" placeholder="Entrada" value={nuevoEntrada} onChange={(e) => setNuevoEntrada(e.target.value)} />
               <input className="vista-input" placeholder="Producto" value={nuevoProducto} onChange={(e) => setNuevoProducto(e.target.value)} />
-              <button className="vista-button primary" type="submit" disabled={role !== "coordinador" && !permisosAdministrativo.canAddIngreso}>Agregar</button>
+              <button className="vista-button primary" type="button" onClick={handleInsertIngresos}>Agregar</button>
               <button type="button" className="vista-button" onClick={exportBackup} style={{ marginLeft: 8 }}>Exportar backup</button>
             </form>
 
