@@ -339,15 +339,51 @@ export default function App() {
         <div className="vista-content">
           <div className="vista-panel">
             <form onSubmit={agregarIngreso} className="row" style={{ marginBottom: 12 }}>
-              <input className="vista-input" placeholder="Fecha" value={nuevoFecha} onChange={(e) => setNuevoFecha(e.target.value)} type="date" />
-              <input className="vista-input" placeholder="Cuenta de fondos" value={nuevoCuentaFondos} onChange={(e) => setNuevoCuentaFondos(e.target.value)} />
-              <input className="vista-input" placeholder="Monto" value={nuevoMonto} onChange={(e) => setNuevoMonto(e.target.value)} />
-              <input className="vista-input" placeholder="Socio aportante" value={nuevoSocio} onChange={(e) => setNuevoSocio(e.target.value)} />
-              <input className="vista-input" placeholder="Afectación" value={nuevoAfectacion} onChange={(e) => setNuevoAfectacion(e.target.value)} />
-              <input className="vista-input" placeholder="Evento" value={nuevoEvento} onChange={(e) => setNuevoEvento(e.target.value)} />
-              <input className="vista-input" placeholder="Entrada" value={nuevoEntrada} onChange={(e) => setNuevoEntrada(e.target.value)} />
-              <input className="vista-input" placeholder="Producto" value={nuevoProducto} onChange={(e) => setNuevoProducto(e.target.value)} />
-              <button className="vista-button primary" type="button" onClick={handleInsertIngresos}>Agregar</button>
+              <input className="vista-input"
+                placeholder="Fecha"
+                value={nuevoFecha}
+                onChange={(e) => setNuevoFecha(e.target.value)}
+                type="date"
+              />
+              <input className="vista-input"
+                placeholder="Cuenta de fondos"
+                value={nuevoCuentaFondos}
+                onChange={(e) => setNuevoCuentaFondos(e.target.value)}
+              />
+              <input className="vista-input"
+                placeholder="Monto"
+                value={nuevoMonto}
+                onChange={(e) => setNuevoMonto(e.target.value)}
+              />
+              <input className="vista-input"
+                placeholder="Socio aportante"
+                value={nuevoSocio}
+                onChange={(e) => setNuevoSocio(e.target.value)}
+              />
+              <input className="vista-input"
+                placeholder="Afectación"
+                value={nuevoAfectacion}
+                onChange={(e) => setNuevoAfectacion(e.target.value)}
+              />
+              <input className="vista-input"
+                placeholder="Evento" value={nuevoEvento}
+                onChange={(e) => setNuevoEvento(e.target.value)}
+              />
+              <input className="vista-input"
+                placeholder="Entrada"
+                value={nuevoEntrada}
+                onChange={(e) => setNuevoEntrada(e.target.value)}
+              />
+              <input className="vista-input"
+                placeholder="Producto"
+                value={nuevoProducto}
+                onChange={(e) => setNuevoProducto(e.target.value)}
+              />
+              <button className="vista-button primary"
+                type="button"
+                onClick={handleInsertIngresos}>
+                Agregar
+              </button>
               <button type="button" className="vista-button" onClick={exportBackup} style={{ marginLeft: 8 }}>Exportar backup</button>
             </form>
 
