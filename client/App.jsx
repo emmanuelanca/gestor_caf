@@ -505,7 +505,7 @@ export default function App() {
                 <tbody>
                   {ingresos && ingresos.map((ingreso, index) => (
                     <tr key={index}>
-                      <td>{ingreso.fecha}</td>
+                      <td>{ingreso.fecha.split('T')[0]}</td>
                       <td>{ingreso.cuenta_fondos}</td>
                       <td>{ingreso.monto}</td>
                       <td>{ingreso.socio_apellido} {ingreso.socio_nombre}</td>
