@@ -12,7 +12,7 @@ app.use(express.json());
 
 app.get('/api/ingresos', async (req, res) => {
   try {
-    const ingresos = await db.getRows('ingresos_detallados');
+    const ingresos = await db.sqlQuery('SELECT * FROM ingresos_detallados ORDER BY fecha DESC');
     res.json(ingresos);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -42,7 +42,7 @@ app.post('/api/ingresos', async (req, res) => {
 
 app.get('/api/socios', async (req, res) => {
   try {
-    const socios = await db.getRows('socios');
+    const socios = await db.sqlQuery('SELECT * FROM socios');
     res.json(socios);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -51,7 +51,7 @@ app.get('/api/socios', async (req, res) => {
 
 app.get('/api/cuentas-fondos', async (req, res) => {
   try {
-    const cuentasFondos = await db.getRows('cuentas_fondos');
+    const cuentasFondos = await db.sqlQuery('SELECT * FROM cuentas_fondos');
     res.json(cuentasFondos);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -60,7 +60,7 @@ app.get('/api/cuentas-fondos', async (req, res) => {
 
 app.get('/api/afectacion-ingresos', async (req, res) => {
   try {
-    const afectacionIngresos = await db.getRows('afectacion_ingresos');
+    const afectacionIngresos = await db.sqlQuery('SELECT * FROM afectacion_ingresos');
     res.json(afectacionIngresos);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -69,7 +69,7 @@ app.get('/api/afectacion-ingresos', async (req, res) => {
 
 app.get('/api/eventos', async (req, res) => {
   try {
-    const eventos = await db.getRows('eventos');
+    const eventos = await db.sqlQuery('SELECT * FROM eventos');
     res.json(eventos);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -78,7 +78,7 @@ app.get('/api/eventos', async (req, res) => {
 
 app.get('/api/entradas', async (req, res) => {
   try {
-    const entradas = await db.getRows('entradas');
+    const entradas = await db.sqlQuery('SELECT * FROM entradas');
     res.json(entradas);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -87,7 +87,7 @@ app.get('/api/entradas', async (req, res) => {
 
 app.get('/api/productos', async (req, res) => {
   try {
-    const productos = await db.getRows('productos');
+    const productos = await db.sqlQuery('SELECT * FROM productos');
     res.json(productos);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
