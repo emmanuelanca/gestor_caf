@@ -438,6 +438,7 @@ export default function App() {
                   value={optionsCuentasFondos.find(option => option.value === nuevoCuentaFondos) || null}
                   onChange={(e) => setNuevoCuentaFondos(e ? e.value : "")}
                   options={optionsCuentasFondos}
+                  isClearable
                 />
               </div>
               <input className="vista-input"
@@ -451,6 +452,7 @@ export default function App() {
                   value={optionsSocios.find(option => option.value === nuevoSocio) || null}
                   onChange={(e) => setNuevoSocio(e ? e.value : "")}
                   options={optionsSocios}
+                  isClearable
                 />
               </div>
               <div className="vista-input">
@@ -459,6 +461,7 @@ export default function App() {
                   value={optionsAfectacionIngresos.find(option => option.value === nuevoAfectacion) || null}
                   onChange={(e) => setNuevoAfectacion(e ? e.value : "")}
                   options={optionsAfectacionIngresos}
+                  isClearable
                 />
               </div>
               <div className="vista-input">
@@ -467,6 +470,7 @@ export default function App() {
                   value={optionsEventos.find(option => option.value === nuevoEvento) || null}
                   onChange={(e) => setNuevoEvento(e ? e.value : "")}
                   options={optionsEventos}
+                  isClearable
                 />
               </div>
               <div className="vista-input">
@@ -475,6 +479,7 @@ export default function App() {
                   value={optionsEntradas.find(option => option.value === nuevoEntrada) || null}
                   onChange={(e) => setNuevoEntrada(e ? e.value : "")}
                   options={optionsEntradas}
+                  isClearable
                 />
               </div>
               <div className="vista-input">
@@ -483,6 +488,7 @@ export default function App() {
                   value={optionsProductos.find(option => option.value === nuevoProducto) || null}
                   onChange={(e) => setNuevoProducto(e ? e.value : "")}
                   options={optionsProductos}
+                  isClearable
                 />
               </div>
               <button className="vista-button primary"
