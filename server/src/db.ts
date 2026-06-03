@@ -24,18 +24,22 @@ const pool = mariadb.createPool({
   connectionLimit: 5
 });
 
-export async function getIngresos() {
+async function sqlQuery(query: string) {
   let conn;
   try {
     conn = await pool.getConnection();
-    const rows = await conn.query("SELECT * FROM ingresos_detallados");
+    const rows = await conn.query(query);
     return rows;
   } catch (error) {
-    console.error("Error en getIngresos: ", error);
+    console.error("Error en getRows: ", error);
     throw error;
   } finally {
     if (conn) conn.release();
   }
+}
+
+export async function getRows(table: string) {
+  return await sqlQuery(`SELECT * FROM ${table}`)
 }
 
 export function calendarCreateYear(targetYear: number): void {

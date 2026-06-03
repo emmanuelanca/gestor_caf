@@ -12,7 +12,7 @@ app.use(express.json());
 
 app.get('/api/ingresos', async (req, res) => {
   try {
-    const ingresos = await db.getIngresos();
+    const ingresos = await db.getRows('ingresos_detallados');
     res.json(ingresos);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -39,7 +39,6 @@ app.post('/api/ingresos', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`Server running on http://localhost:${PORT}`);
