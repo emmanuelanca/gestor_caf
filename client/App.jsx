@@ -13,16 +13,7 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(() => loadFromStorage("darkMode", false));
   const [coordinadorPassword, setCoordinadorPassword] = useState(() => loadFromStorage("coordinadorPassword", "123"));
 
-
   const [ingresos, setIngresos] = useState([]);
-
-  useEffect(() => {
-    fetch(`${API_URL}/api/ingresos`)
-      .then(res => res.json())
-      .then(data => setIngresos(data))
-      .catch(err => console.error("Error al cargar: ", err));
-  }, []);
-
   const [nuevoFecha, setNuevoFecha] = useState(() => new Date().toISOString().split('T')[0]);
   const [nuevoCuentaFondos, setNuevoCuentaFondos] = useState("");
   const [nuevoMonto, setNuevoMonto] = useState("");
@@ -31,6 +22,20 @@ export default function App() {
   const [nuevoEvento, setNuevoEvento] = useState("");
   const [nuevoEntrada, setNuevoEntrada] = useState("");
   const [nuevoProducto, setNuevoProducto] = useState("");
+
+  const fetchIngresos = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/ingresos`);
+      const data = await response.json();
+      setIngresos(data);
+    } catch (error) {
+      console.error("Error al cargar ingresos: ", error)
+    }
+  };
+
+  useEffect(() => {
+    fetchIngresos();
+  }, []);
 
   const handleInsertIngresos = async () => {
     try {
@@ -51,14 +56,14 @@ export default function App() {
         body: JSON.stringify(values)
       });
 
-      alert('Ingreso registrado correctamente.');
-
-
+      await fetchIngresos();
     } catch (error) {
       console.error(error);
       alert('Hubo un error al guardar el ingreso.');
     }
 
+    setNuevoFecha(new Date().toISOString().split('T')[0]);
+    setNuevoCuentaFondos("");
     setNuevoMonto("");
     setNuevoSocio("");
     setNuevoAfectacion("");
