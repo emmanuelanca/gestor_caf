@@ -523,8 +523,6 @@ export default function App() {
                 </tbody>
               </table>
             </div>
-
-            <div style={{ marginTop: 12 }}><p>Total Ingresos: ${totalIngresos}</p></div>
           </div >
         </div >
       </div >
