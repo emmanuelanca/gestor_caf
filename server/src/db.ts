@@ -3,7 +3,7 @@ import * as mariadb from 'mariadb';
 
 dotenv.config();
 
-interface CalendarEntry {
+interface CalendarRow {
   id: number;
   date: string;
   year: number;
@@ -40,6 +40,24 @@ async function sqlQuery(query: string) {
 
 export async function getRows(table: string) {
   return await sqlQuery(`SELECT * FROM ${table}`)
+}
+
+export async function calendarDateToId(date: string | Date): Promise<number | null> {
+  let formattedDate;
+
+  if (date instanceof Date) {
+    formattedDate = date.toISOString().split('T')[0];
+  } else {
+    formattedDate = date;
+  }
+
+  const rows = await sqlQuery(`SELECT id FROM fechas WHERE fecha = '${formattedDate}' LIMIT 1`) as CalendarRow[];
+
+  if (rows && rows.length > 0) {
+    return rows[0].id;
+  }
+
+  return null;
 }
 
 export function calendarCreateYear(targetYear: number): void {

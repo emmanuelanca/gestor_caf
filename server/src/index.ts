@@ -22,12 +22,12 @@ app.get('/api/ingresos', async (req, res) => {
 app.post('/api/ingresos', async (req, res) => {
   try {
     const resultado = await db.rowCreate('ingresos', {
-      'fecha': 1,
+      'fecha': req.body.fecha ? await db.calendarDateToId(req.body.fecha) : null,
       'cuenta_fondos': req.body.cuentaFondos ? parseFloat(req.body.cuentaFondos) : null,
       'monto': req.body.monto ? parseFloat(req.body.monto) : null,
       'socio': req.body.socio ? parseInt(req.body.socio) : null,
       'afectacion_ingreso': req.body.afectacion ? parseInt(req.body.afectacion) : null,
-      'evento': req.body.evento ? parseInt(req.body.monto) : null,
+      'evento': req.body.evento ? parseInt(req.body.evento) : null,
       'entrada': req.body.entrada ? parseInt(req.body.entrada) : null,
       'producto': req.body.producto ? parseInt(req.body.producto) : null
     });
