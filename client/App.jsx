@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./vista.css";
+import Select from 'react-select';
 import escudo from "/src/assets/escudo.png";
 import { MdAccountBalanceWallet, MdChecklist, MdMenuBook, MdSettings, MdAccessTime } from "react-icons/md";
 import { loadFromStorage, saveToStorage, clearStorage } from "./storage";
@@ -11,6 +12,8 @@ export default function App() {
   const [role, setRole] = useState(() => loadFromStorage("role", "administrativo"));
   const [darkMode, setDarkMode] = useState(() => loadFromStorage("darkMode", false));
   const [coordinadorPassword, setCoordinadorPassword] = useState(() => loadFromStorage("coordinadorPassword", "123"));
+
+
   const [ingresos, setIngresos] = useState([]);
 
   useEffect(() => {
@@ -63,6 +66,90 @@ export default function App() {
     setNuevoEntrada("");
     setNuevoProducto("");
   };
+
+  const [socios, setSocios] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/socios`)
+      .then(res => res.json())
+      .then(data => setSocios(data))
+      .catch(err => console.error("Error al cargar: ", err));
+  }, []);
+
+  const optionsSocios = socios.map(socio => ({
+    value: socio.id,
+    label: `${socio.apellido} ${socio.nombre} (${socio.dni})`
+  }));
+
+  const [cuentasFondos, setCuentasFondos] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/cuentas-fondos`)
+      .then(res => res.json())
+      .then(data => setCuentasFondos(data))
+      .catch(err => console.error("Error al cargar: ", err));
+  }, []);
+
+  const optionsCuentasFondos = cuentasFondos.map(cuenta => ({
+    value: cuenta.id,
+    label: cuenta.nombre
+  }));
+
+  const [afectacionIngresos, setAfectacionIngresos] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/afectacion-ingresos`)
+      .then(res => res.json())
+      .then(data => setAfectacionIngresos(data))
+      .catch(err => console.error("Error al cargar: ", err));
+  }, []);
+
+  const optionsAfectacionIngresos = afectacionIngresos.map(afectacion => ({
+    value: afectacion.id,
+    label: afectacion.destino
+  }));
+
+  const [eventos, setEventos] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/eventos`)
+      .then(res => res.json())
+      .then(data => setEventos(data))
+      .catch(err => console.error("Error al cargar: ", err));
+  }, []);
+
+  const optionsEventos = eventos.map(evento => ({
+    value: evento.id,
+    label: evento.nombre
+  }));
+
+  const [entradas, setEntradas] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/entradas`)
+      .then(res => res.json())
+      .then(data => setEntradas(data))
+      .catch(err => console.error("Error al cargar: ", err));
+  }, []);
+
+  const optionsEntradas = entradas.map(entrada => ({
+    value: entrada.id,
+    label: entrada.categoria
+  }));
+
+  const [productos, setProductos] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/productos`)
+      .then(res => res.json())
+      .then(data => setProductos(data))
+      .catch(err => console.error("Error al cargar: ", err));
+  }, []);
+
+  const optionsProductos = productos.map(producto => ({
+    value: producto.id,
+    label: producto.nombre
+  }));
 
   const [compromisos, setCompromisos] = useState(() => loadFromStorage("compromisos", []));
   const [ordenesPago, setOrdenesPago] = useState(() => loadFromStorage("ordenesPago", []));
@@ -345,40 +432,59 @@ export default function App() {
                 onChange={(e) => setNuevoFecha(e.target.value)}
                 type="date"
               />
-              <input className="vista-input"
-                placeholder="Cuenta de fondos"
-                value={nuevoCuentaFondos}
-                onChange={(e) => setNuevoCuentaFondos(e.target.value)}
-              />
+              <div className="vista-input">
+                <Select
+                  placeholder="Cuenta de fondos"
+                  value={optionsCuentasFondos.find(option => option.value === nuevoCuentaFondos) || null}
+                  onChange={(e) => setNuevoCuentaFondos(e ? e.value : "")}
+                  options={optionsCuentasFondos}
+                />
+              </div>
               <input className="vista-input"
                 placeholder="Monto"
                 value={nuevoMonto}
                 onChange={(e) => setNuevoMonto(e.target.value)}
               />
-              <input className="vista-input"
-                placeholder="Socio aportante"
-                value={nuevoSocio}
-                onChange={(e) => setNuevoSocio(e.target.value)}
-              />
-              <input className="vista-input"
-                placeholder="Afectación"
-                value={nuevoAfectacion}
-                onChange={(e) => setNuevoAfectacion(e.target.value)}
-              />
-              <input className="vista-input"
-                placeholder="Evento" value={nuevoEvento}
-                onChange={(e) => setNuevoEvento(e.target.value)}
-              />
-              <input className="vista-input"
-                placeholder="Entrada"
-                value={nuevoEntrada}
-                onChange={(e) => setNuevoEntrada(e.target.value)}
-              />
-              <input className="vista-input"
-                placeholder="Producto"
-                value={nuevoProducto}
-                onChange={(e) => setNuevoProducto(e.target.value)}
-              />
+              <div className="vista-input">
+                <Select
+                  placeholder="Socio aportante"
+                  value={optionsSocios.find(option => option.value === nuevoSocio) || null}
+                  onChange={(e) => setNuevoSocio(e ? e.value : "")}
+                  options={optionsSocios}
+                />
+              </div>
+              <div className="vista-input">
+                <Select
+                  placeholder="Afectación"
+                  value={optionsAfectacionIngresos.find(option => option.value === nuevoAfectacion) || null}
+                  onChange={(e) => setNuevoAfectacion(e ? e.value : "")}
+                  options={optionsAfectacionIngresos}
+                />
+              </div>
+              <div className="vista-input">
+                <Select
+                  placeholder="Evento"
+                  value={optionsEventos.find(option => option.value === nuevoEvento) || null}
+                  onChange={(e) => setNuevoEvento(e ? e.value : "")}
+                  options={optionsEventos}
+                />
+              </div>
+              <div className="vista-input">
+                <Select
+                  placeholder="Entrada"
+                  value={optionsEntradas.find(option => option.value === nuevoEntrada) || null}
+                  onChange={(e) => setNuevoEntrada(e ? e.value : "")}
+                  options={optionsEntradas}
+                />
+              </div>
+              <div className="vista-input">
+                <Select
+                  placeholder="Producto"
+                  value={optionsProductos.find(option => option.value === nuevoProducto) || null}
+                  onChange={(e) => setNuevoProducto(e ? e.value : "")}
+                  options={optionsProductos}
+                />
+              </div>
               <button className="vista-button primary"
                 type="button"
                 onClick={handleInsertIngresos}>
@@ -408,9 +514,9 @@ export default function App() {
             </div>
 
             <div style={{ marginTop: 12 }}><p>Total Ingresos: ${totalIngresos}</p></div>
-          </div>
-        </div>
-      </div>
+          </div >
+        </div >
+      </div >
     );
   }
 

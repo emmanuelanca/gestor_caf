@@ -40,6 +40,60 @@ app.post('/api/ingresos', async (req, res) => {
   }
 });
 
+app.get('/api/socios', async (req, res) => {
+  try {
+    const socios = await db.getRows('socios');
+    res.json(socios);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/cuentas-fondos', async (req, res) => {
+  try {
+    const cuentasFondos = await db.getRows('cuentas_fondos');
+    res.json(cuentasFondos);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/afectacion-ingresos', async (req, res) => {
+  try {
+    const afectacionIngresos = await db.getRows('afectacion_ingresos');
+    res.json(afectacionIngresos);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/eventos', async (req, res) => {
+  try {
+    const eventos = await db.getRows('eventos');
+    res.json(eventos);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/entradas', async (req, res) => {
+  try {
+    const entradas = await db.getRows('entradas');
+    res.json(entradas);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/productos', async (req, res) => {
+  try {
+    const productos = await db.getRows('productos');
+    res.json(productos);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
