@@ -40,6 +40,17 @@ app.post('/api/ingresos', async (req, res) => {
   }
 });
 
+app.delete('/api/ingresos/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.sqlQuery(`DELETE FROM ingresos WHERE id = ${id}`);
+    res.json({ success: true, message: 'Ingreso eliminado correctamente.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.get('/api/socios', async (req, res) => {
   try {
     const socios = await db.sqlQuery('SELECT * FROM socios');

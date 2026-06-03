@@ -72,6 +72,25 @@ export default function App() {
     setNuevoProducto("");
   };
 
+  const handleDeleteIngreso = async (id) => {
+    const confirm = window.confirm('¿Estás seguro de eliminar este ingreso?');
+    if (!confirm) return;
+
+    try {
+      const response = await fetch(`${API_URL}/api/ingresos/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        await fetchIngresos();
+      } else {
+        alert('No se pudo eliminar el ingreso.');
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const [socios, setSocios] = useState([]);
 
   useEffect(() => {
@@ -506,18 +525,51 @@ export default function App() {
 
             <div className="table-wrap">
               <table className="vista-table">
-                <thead><tr><th>Fecha</th><th>Cuenta de fondos</th><th>Monto</th><th>Socio aportante</th><th>Afectación</th><th>Evento</th><th>Entrada</th><th>Producto</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Cuenta Fondos</th>
+                    <th>Monto</th>
+                    <th>Socio</th>
+                    <th>Afectación</th>
+                    <th>Entrada</th>
+                    <th>Evento</th>
+                    <th>Producto</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  {ingresos && ingresos.map((ingreso, index) => (
-                    <tr key={index}>
-                      <td>{ingreso.fecha.split('T')[0]}</td>
+                  {ingresos.map((ingreso) => (
+                    <tr key={ingreso.id}>
+                      <td>{ingreso.fecha ? new Date(ingreso.fecha).toLocaleDateString(navigator.language) : '-'}</td>
                       <td>{ingreso.cuenta_fondos}</td>
-                      <td>{ingreso.monto}</td>
-                      <td>{ingreso.socio_apellido} {ingreso.socio_nombre}</td>
-                      <td>{ingreso.afectacion_ingreso}</td>
-                      <td>{ingreso.evento_nombre}</td>
-                      <td>{ingreso.entrada_categoria}</td>
-                      <td>{ingreso.producto_nombre}</td>
+                      <td>${ingreso.monto}</td>
+                      <td>
+                        {ingreso.socio_apellido && ingreso.socio_nombre
+                          ? `${ingreso.socio_apellido}, ${ingreso.socio_nombre}`
+                          : '-'}
+                      </td>
+                      <td>{ingreso.afectacion_ingreso || '-'}</td>
+                      <td>{ingreso.entrada_categoria || '-'}</td>
+                      <td>{ingreso.evento_nombre || '-'}</td>
+                      <td>{ingreso.producto_nombre || '-'}</td>
+                      <td>
+                        <button
+                          onClick={() => handleDeleteIngreso(ingreso.id)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#e74c3c',
+                            fontSize: '18px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            padding: '0 5px'
+                          }}
+                          title="Eliminar ingreso"
+                        >
+                          &times;
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
