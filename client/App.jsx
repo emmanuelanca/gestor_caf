@@ -23,7 +23,7 @@ export default function App() {
       .catch(err => console.error("Error al cargar: ", err));
   }, []);
 
-  const [nuevoFecha, setNuevoFecha] = useState(() => new Date().toISOString().slice(0, 10));
+  const [nuevoFecha, setNuevoFecha] = useState(() => new Date().toISOString().split('T')[0]);
   const [nuevoCuentaFondos, setNuevoCuentaFondos] = useState("");
   const [nuevoMonto, setNuevoMonto] = useState("");
   const [nuevoSocio, setNuevoSocio] = useState("");
@@ -35,7 +35,7 @@ export default function App() {
   const handleInsertIngresos = async () => {
     try {
       const values = {
-        'fecha': 1,
+        'fecha': nuevoFecha,
         'cuentaFondos': nuevoCuentaFondos,
         'monto': nuevoMonto,
         'socio': nuevoSocio,
