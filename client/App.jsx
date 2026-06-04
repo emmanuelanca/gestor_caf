@@ -502,7 +502,6 @@ export default function App() {
                 onClick={handleInsertIngresos}>
                 Agregar
               </button>
-              <button type="button" className="vista-button" onClick={exportBackup} style={{ marginLeft: 8 }}>Exportar backup</button>
             </form>
 
             <div className="table-wrap">
