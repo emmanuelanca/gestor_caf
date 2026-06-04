@@ -438,6 +438,11 @@ export default function App() {
                 onChange={(e) => setNuevoFecha(e.target.value)}
                 type="date"
               />
+              <input className="vista-input"
+                placeholder="Monto"
+                value={nuevoMonto}
+                onChange={(e) => setNuevoMonto(e.target.value)}
+              />
               <div className="vista-input">
                 <Select
                   placeholder="Cuenta de fondos"
@@ -447,11 +452,6 @@ export default function App() {
                   isClearable
                 />
               </div>
-              <input className="vista-input"
-                placeholder="Monto"
-                value={nuevoMonto}
-                onChange={(e) => setNuevoMonto(e.target.value)}
-              />
               <div className="vista-input">
                 <Select
                   placeholder="Socio aportante"
