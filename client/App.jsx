@@ -442,6 +442,7 @@ export default function App() {
                 placeholder="Monto"
                 value={nuevoMonto}
                 onChange={(e) => setNuevoMonto(e.target.value)}
+                inputmode="decimal"
               />
               <div className="vista-input">
                 <Select
