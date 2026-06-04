@@ -407,19 +407,6 @@ export default function App() {
             <div className="club-title">Club Atletico French</div>
           </div>
           <div className="title-right">
-            <div className="profile-dropdown">
-              <label className="profile-label" htmlFor="profileSelect">Perfil</label>
-              <select id="profileSelect" className="profile-select" value={role} onChange={handleProfileChange}>
-                <option value="administrativo">Administrativo</option>
-                <option value="coordinador">Coordinador</option>
-              </select>
-              <button className="icon-button" title={darkMode ? "Desactivar modo oscuro" : "Modo oscuro"} onClick={() => setDarkMode((d) => !d)}>🌙</button>
-              {role === "coordinador" && (
-                <div className="admin-perms">
-                  <button className="vista-button" onClick={() => setScreen("actividad")}>Actividad</button>
-                </div>
-              )}
-            </div>
           </div>
         </div>
 
@@ -439,11 +426,6 @@ export default function App() {
         <div className="vista-titlebar">
           <div className="title-left"><button className="vista-button back-button" onClick={() => setScreen("menu")}>←</button><div className="club-title">Ingresos</div></div>
           <div className="title-right">
-            <div className="profile-dropdown small">
-              <label className="profile-label" htmlFor="profileSelect2">Perfil</label>
-              <select id="profileSelect2" className="profile-select" value={role} onChange={handleProfileChange}><option value="administrativo">Administrativo</option><option value="coordinador">Coordinador</option></select>
-              <button className="icon-button" onClick={() => setDarkMode((d) => !d)}>🌙</button>
-            </div>
           </div>
         </div>
 
