@@ -1,87 +1,87 @@
-import React, { useEffect, useState } from "react";
-import "./vista.css";
+import React, { useEffect, useState } from 'react';
+import './vista.css';
 import Select from 'react-select';
-import escudo from "/src/assets/escudo.png";
-import { MdAccountBalanceWallet } from "react-icons/md";
+import escudo from '/src/assets/escudo.png';
+import { MdAccountBalanceWallet } from 'react-icons/md';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function App() {
-  const [afectacionIngresos, setAfectacionIngresos] = useState([]);
-  const [cuentasFondos, setCuentasFondos] = useState([]);
-  const [entradas, setEntradas] = useState([]);
-  const [eventos, setEventos] = useState([]);
-  const [ingresos, setIngresos] = useState([]);
-  const [nuevoAfectacion, setNuevoAfectacion] = useState("");
-  const [nuevoCuentaFondos, setNuevoCuentaFondos] = useState("");
-  const [nuevoEntrada, setNuevoEntrada] = useState("");
-  const [nuevoEvento, setNuevoEvento] = useState("");
-  const [nuevoFecha, setNuevoFecha] = useState(() => new Date().toISOString().split('T')[0]);
-  const [nuevoMonto, setNuevoMonto] = useState("");
-  const [nuevoProducto, setNuevoProducto] = useState("");
-  const [nuevoSocio, setNuevoSocio] = useState("");
-  const [productos, setProductos] = useState([]);
-  const [screen, setScreen] = useState("menu");
-  const [socios, setSocios] = useState([]);
+  const [allocation, setAllocation] = useState([]);
+  const [event, setEvent] = useState([]);
+  const [fundAccount, setFundAccount] = useState([]);
+  const [income, setIncome] = useState([]);
+  const [member, setMember] = useState([]);
+  const [newAllocation, setNewAllocation] = useState('');
+  const [newAmount, setNewAmount] = useState('');
+  const [newDate, setNewDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [newEvent, setNewEvent] = useState('');
+  const [newFundAccount, setNewFundAccount] = useState('');
+  const [newMember, setNewMember] = useState('');
+  const [newProduct, setNewProduct] = useState('');
+  const [newTicket, setNewTicket] = useState('');
+  const [product, setProduct] = useState([]);
+  const [screen, setScreen] = useState('menu');
+  const [ticket, setTicket] = useState([]);
 
-  const fetchIngresos = async () => {
+  const fetchIncome = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/ingresos`);
-      const data = await response.json();
-      setIngresos(data);
+      const result = await fetch(`${API_URL}/api/income`);
+      const data = await result.json();
+      setIncome(data);
     } catch (error) {
-      console.error("Error al cargar ingresos: ", error)
+      console.error('Error while fetching incomes: ', error)
     }
   };
 
-  const handleInsertIngresos = async () => {
+  const handleInsertIncome = async () => {
     try {
       const values = {
-        'fecha': nuevoFecha,
-        'cuentaFondos': nuevoCuentaFondos,
-        'monto': nuevoMonto,
-        'socio': nuevoSocio,
-        'afectacion': nuevoAfectacion,
-        'evento': nuevoEvento,
-        'entrada': nuevoEntrada,
-        'producto': nuevoProducto
+        'date': newDate,
+        'fundAccount': newFundAccount,
+        'amount': newAmount,
+        'member': newMember,
+        'allocation': newAllocation,
+        'event': newEvent,
+        'ticket': newTicket,
+        'product': newProduct
       }
 
-      await fetch(`${API_URL}/api/ingresos`, {
+      await fetch(`${API_URL}/api/income`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values)
       });
 
-      await fetchIngresos();
+      await fetchIncome();
     } catch (error) {
       console.error(error);
-      alert('Hubo un error al guardar el ingreso.');
+      alert('Error while inserting an income');
     }
 
-    setNuevoFecha(new Date().toISOString().split('T')[0]);
-    setNuevoCuentaFondos("");
-    setNuevoMonto("");
-    setNuevoSocio("");
-    setNuevoAfectacion("");
-    setNuevoEvento("");
-    setNuevoEntrada("");
-    setNuevoProducto("");
+    setNewDate(new Date().toISOString().split('T')[0]);
+    setNewFundAccount('');
+    setNewAmount('');
+    setNewMember('');
+    setNewAllocation('');
+    setNewEvent('');
+    setNewTicket('');
+    setNewProduct('');
   };
 
-  const handleDeleteIngreso = async (id) => {
+  const handleDeleteIncome = async (id) => {
     const confirm = window.confirm('¿Estás seguro de eliminar este ingreso?');
     if (!confirm) return;
 
     try {
-      const response = await fetch(`${API_URL}/api/ingresos/${id}`, {
+      const result = await fetch(`${API_URL}/api/income/${id}`, {
         method: 'DELETE',
       });
 
-      if (response.ok) {
-        await fetchIngresos();
+      if (result.ok) {
+        await fetchIncome();
       } else {
-        alert('No se pudo eliminar el ingreso.');
+        alert('Error while deleting an income');
       }
     } catch (error) {
       console.error(error);
@@ -89,79 +89,79 @@ export default function App() {
   };
 
   useEffect(() => {
-    fetchIngresos();
+    fetchIncome();
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/socios`)
+    fetch(`${API_URL}/api/member`)
       .then(res => res.json())
-      .then(data => setSocios(data))
-      .catch(err => console.error("Error al cargar: ", err));
+      .then(data => setMember(data))
+      .catch(err => console.error('Error while fetching: ', err));
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/cuentas-fondos`)
+    fetch(`${API_URL}/api/fund-account`)
       .then(res => res.json())
-      .then(data => setCuentasFondos(data))
-      .catch(err => console.error("Error al cargar: ", err));
+      .then(data => setFundAccount(data))
+      .catch(err => console.error('Error while fetching: ', err));
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/afectacion-ingresos`)
+    fetch(`${API_URL}/api/allocation`)
       .then(res => res.json())
-      .then(data => setAfectacionIngresos(data))
-      .catch(err => console.error("Error al cargar: ", err));
+      .then(data => setAllocation(data))
+      .catch(err => console.error('Error while fetching: ', err));
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/eventos`)
+    fetch(`${API_URL}/api/event`)
       .then(res => res.json())
-      .then(data => setEventos(data))
-      .catch(err => console.error("Error al cargar: ", err));
+      .then(data => setEvent(data))
+      .catch(err => console.error('Error while fetching: ', err));
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/entradas`)
+    fetch(`${API_URL}/api/ticket`)
       .then(res => res.json())
-      .then(data => setEntradas(data))
-      .catch(err => console.error("Error al cargar: ", err));
+      .then(data => setTicket(data))
+      .catch(err => console.error('Error while fetching: ', err));
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/productos`)
+    fetch(`${API_URL}/api/product`)
       .then(res => res.json())
-      .then(data => setProductos(data))
-      .catch(err => console.error("Error al cargar: ", err));
+      .then(data => setProduct(data))
+      .catch(err => console.error('Error while fetching: ', err));
   }, []);
 
-  const optionsCuentasFondos = cuentasFondos.map(cuenta => ({
-    value: cuenta.id,
-    label: cuenta.nombre
+  const optionsFundAccount = fundAccount.map(fundAccount => ({
+    value: fundAccount.id,
+    label: fundAccount.nombre
   }));
 
-  const optionsAfectacionIngresos = afectacionIngresos.map(afectacion => ({
-    value: afectacion.id,
-    label: afectacion.destino
+  const optionsAllocation = allocation.map(allocation => ({
+    value: allocation.id,
+    label: allocation.destino
   }));
 
-  const optionsEventos = eventos.map(evento => ({
-    value: evento.id,
-    label: evento.nombre
+  const optionsEvent = event.map(event => ({
+    value: event.id,
+    label: event.nombre
   }));
 
-  const optionsEntradas = entradas.map(entrada => ({
-    value: entrada.id,
-    label: entrada.categoria
+  const optionsTicket = ticket.map(ticket => ({
+    value: ticket.id,
+    label: ticket.categoria
   }));
 
-  const optionsProductos = productos.map(producto => ({
-    value: producto.id,
-    label: producto.nombre
+  const optionsProduct = product.map(product => ({
+    value: product.id,
+    label: product.nombre
   }));
 
-  const optionsSocios = socios.map(socio => ({
-    value: socio.id,
-    label: `${socio.apellido} ${socio.nombre} (${socio.dni})`
+  const optionsMember = member.map(member => ({
+    value: member.id,
+    label: `${member.apellido} ${member.nombre} (${member.dni})`
   }));
 
 
@@ -178,16 +178,16 @@ export default function App() {
         </div>
 
         <div className="vista-content menu-vertical">
-          <button className="menu-tile primary-tile vertical" onClick={() => setScreen("ingresos")}>
+          <button className="menu-tile primary-tile vertical" onClick={() => setScreen("income")}>
             <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
-            <div className="tile-text"><div className="tile-title">Ingresos</div><div className="tile-desc">Registrar y ver ingresos</div></div>
+            <div className="tile-text"><div className="tile-title">Ingresos</div><div className="tile-desc">Registrar y ver income</div></div>
           </button>
         </div>
       </div>
     );
   }
 
-  if (screen === "ingresos") {
+  if (screen === "income") {
     return (
       <div className="vista-window">
         <div className="vista-titlebar">
@@ -198,76 +198,76 @@ export default function App() {
 
         <div className="vista-content">
           <div className="vista-panel">
-            <form onSubmit={handleInsertIngresos} className="row" style={{ marginBottom: 12 }}>
+            <form onSubmit={handleInsertIncome} className="row" style={{ marginBottom: 12 }}>
               <input className="vista-input"
                 placeholder="Fecha"
-                value={nuevoFecha}
-                onChange={(e) => setNuevoFecha(e.target.value)}
+                value={newDate}
+                onChange={(e) => setNewDate(e.target.value)}
                 type="date"
               />
               <input className="vista-input"
                 placeholder="Monto"
-                value={nuevoMonto}
-                onChange={(e) => setNuevoMonto(e.target.value)}
+                value={newAmount}
+                onChange={(e) => setNewAmount(e.target.value)}
                 inputmode="decimal"
               />
               <div className="vista-input">
                 <Select
                   placeholder="Cuenta de fondos"
-                  value={optionsCuentasFondos.find(option => option.value === nuevoCuentaFondos) || null}
-                  onChange={(e) => setNuevoCuentaFondos(e ? e.value : "")}
-                  options={optionsCuentasFondos}
+                  value={optionsFundAccount.find(option => option.value === newFundAccount) || null}
+                  onChange={(e) => setNewFundAccount(e ? e.value : "")}
+                  options={optionsFundAccount}
                   isClearable
                 />
               </div>
               <div className="vista-input">
                 <Select
                   placeholder="Socio aportante"
-                  value={optionsSocios.find(option => option.value === nuevoSocio) || null}
-                  onChange={(e) => setNuevoSocio(e ? e.value : "")}
-                  options={optionsSocios}
+                  value={optionsMember.find(option => option.value === newMember) || null}
+                  onChange={(e) => setNewMember(e ? e.value : "")}
+                  options={optionsMember}
                   isClearable
                 />
               </div>
               <div className="vista-input">
                 <Select
                   placeholder="Afectación"
-                  value={optionsAfectacionIngresos.find(option => option.value === nuevoAfectacion) || null}
-                  onChange={(e) => setNuevoAfectacion(e ? e.value : "")}
-                  options={optionsAfectacionIngresos}
+                  value={optionsAllocation.find(option => option.value === newAllocation) || null}
+                  onChange={(e) => setNewAllocation(e ? e.value : "")}
+                  options={optionsAllocation}
                   isClearable
                 />
               </div>
               <div className="vista-input">
                 <Select
                   placeholder="Evento"
-                  value={optionsEventos.find(option => option.value === nuevoEvento) || null}
-                  onChange={(e) => setNuevoEvento(e ? e.value : "")}
-                  options={optionsEventos}
+                  value={optionsEvent.find(option => option.value === newEvent) || null}
+                  onChange={(e) => setNewEvent(e ? e.value : "")}
+                  options={optionsEvent}
                   isClearable
                 />
               </div>
               <div className="vista-input">
                 <Select
                   placeholder="Entrada"
-                  value={optionsEntradas.find(option => option.value === nuevoEntrada) || null}
-                  onChange={(e) => setNuevoEntrada(e ? e.value : "")}
-                  options={optionsEntradas}
+                  value={optionsTicket.find(option => option.value === newTicket) || null}
+                  onChange={(e) => setNewTicket(e ? e.value : "")}
+                  options={optionsTicket}
                   isClearable
                 />
               </div>
               <div className="vista-input">
                 <Select
                   placeholder="Producto"
-                  value={optionsProductos.find(option => option.value === nuevoProducto) || null}
-                  onChange={(e) => setNuevoProducto(e ? e.value : "")}
-                  options={optionsProductos}
+                  value={optionsProduct.find(option => option.value === newProduct) || null}
+                  onChange={(e) => setNewProduct(e ? e.value : "")}
+                  options={optionsProduct}
                   isClearable
                 />
               </div>
               <button className="vista-button primary"
                 type="button"
-                onClick={handleInsertIngresos}>
+                onClick={handleInsertIncome}>
                 Agregar
               </button>
             </form>
@@ -288,23 +288,23 @@ export default function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  {ingresos.map((ingreso) => (
-                    <tr key={ingreso.id}>
-                      <td>{ingreso.fecha ? new Date(ingreso.fecha).toLocaleDateString(navigator.language) : '-'}</td>
-                      <td>{ingreso.cuenta_fondos}</td>
-                      <td>${ingreso.monto}</td>
+                  {income.map((income) => (
+                    <tr key={income.id}>
+                      <td>{income.fecha ? new Date(income.fecha).toLocaleDateString(navigator.language) : '-'}</td>
+                      <td>{income.cuenta_fondos}</td>
+                      <td>${income.monto}</td>
                       <td>
-                        {ingreso.socio_apellido && ingreso.socio_nombre
-                          ? `${ingreso.socio_apellido}, ${ingreso.socio_nombre}`
+                        {income.socio_apellido && income.socio_nombre
+                          ? `${income.socio_apellido}, ${income.socio_nombre}`
                           : '-'}
                       </td>
-                      <td>{ingreso.afectacion_ingreso || '-'}</td>
-                      <td>{ingreso.entrada_categoria || '-'}</td>
-                      <td>{ingreso.evento_nombre || '-'}</td>
-                      <td>{ingreso.producto_nombre || '-'}</td>
+                      <td>{income.afectacion_ingreso || '-'}</td>
+                      <td>{income.entrada_categoria || '-'}</td>
+                      <td>{income.evento_nombre || '-'}</td>
+                      <td>{income.producto_nombre || '-'}</td>
                       <td>
                         <button
-                          onClick={() => handleDeleteIngreso(ingreso.id)}
+                          onClick={() => handleDeleteIncome(income.id)}
                           style={{
                             background: 'none',
                             border: 'none',
