@@ -2,26 +2,27 @@ import React, { useEffect, useState } from "react";
 import "./vista.css";
 import Select from 'react-select';
 import escudo from "/src/assets/escudo.png";
-import { MdAccountBalanceWallet, MdChecklist, MdMenuBook, MdSettings, MdAccessTime } from "react-icons/md";
-import { loadFromStorage, saveToStorage, clearStorage } from "./storage";
+import { MdAccountBalanceWallet } from "react-icons/md";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function App() {
-  const [screen, setScreen] = useState("menu");
-  const [role, setRole] = useState(() => loadFromStorage("role", "administrativo"));
-  const [darkMode, setDarkMode] = useState(() => loadFromStorage("darkMode", false));
-  const [coordinadorPassword, setCoordinadorPassword] = useState(() => loadFromStorage("coordinadorPassword", "123"));
-
+  const [afectacionIngresos, setAfectacionIngresos] = useState([]);
+  const [cuentasFondos, setCuentasFondos] = useState([]);
+  const [entradas, setEntradas] = useState([]);
+  const [eventos, setEventos] = useState([]);
   const [ingresos, setIngresos] = useState([]);
-  const [nuevoFecha, setNuevoFecha] = useState(() => new Date().toISOString().split('T')[0]);
-  const [nuevoCuentaFondos, setNuevoCuentaFondos] = useState("");
-  const [nuevoMonto, setNuevoMonto] = useState("");
-  const [nuevoSocio, setNuevoSocio] = useState("");
   const [nuevoAfectacion, setNuevoAfectacion] = useState("");
-  const [nuevoEvento, setNuevoEvento] = useState("");
+  const [nuevoCuentaFondos, setNuevoCuentaFondos] = useState("");
   const [nuevoEntrada, setNuevoEntrada] = useState("");
+  const [nuevoEvento, setNuevoEvento] = useState("");
+  const [nuevoFecha, setNuevoFecha] = useState(() => new Date().toISOString().split('T')[0]);
+  const [nuevoMonto, setNuevoMonto] = useState("");
   const [nuevoProducto, setNuevoProducto] = useState("");
+  const [nuevoSocio, setNuevoSocio] = useState("");
+  const [productos, setProductos] = useState([]);
+  const [screen, setScreen] = useState("menu");
+  const [socios, setSocios] = useState([]);
 
   const fetchIngresos = async () => {
     try {
@@ -32,10 +33,6 @@ export default function App() {
       console.error("Error al cargar ingresos: ", error)
     }
   };
-
-  useEffect(() => {
-    fetchIngresos();
-  }, []);
 
   const handleInsertIngresos = async () => {
     try {
@@ -91,7 +88,9 @@ export default function App() {
     }
   };
 
-  const [socios, setSocios] = useState([]);
+  useEffect(() => {
+    fetchIngresos();
+  }, []);
 
   useEffect(() => {
     fetch(`${API_URL}/api/socios`)
@@ -100,26 +99,12 @@ export default function App() {
       .catch(err => console.error("Error al cargar: ", err));
   }, []);
 
-  const optionsSocios = socios.map(socio => ({
-    value: socio.id,
-    label: `${socio.apellido} ${socio.nombre} (${socio.dni})`
-  }));
-
-  const [cuentasFondos, setCuentasFondos] = useState([]);
-
   useEffect(() => {
     fetch(`${API_URL}/api/cuentas-fondos`)
       .then(res => res.json())
       .then(data => setCuentasFondos(data))
       .catch(err => console.error("Error al cargar: ", err));
   }, []);
-
-  const optionsCuentasFondos = cuentasFondos.map(cuenta => ({
-    value: cuenta.id,
-    label: cuenta.nombre
-  }));
-
-  const [afectacionIngresos, setAfectacionIngresos] = useState([]);
 
   useEffect(() => {
     fetch(`${API_URL}/api/afectacion-ingresos`)
@@ -128,26 +113,12 @@ export default function App() {
       .catch(err => console.error("Error al cargar: ", err));
   }, []);
 
-  const optionsAfectacionIngresos = afectacionIngresos.map(afectacion => ({
-    value: afectacion.id,
-    label: afectacion.destino
-  }));
-
-  const [eventos, setEventos] = useState([]);
-
   useEffect(() => {
     fetch(`${API_URL}/api/eventos`)
       .then(res => res.json())
       .then(data => setEventos(data))
       .catch(err => console.error("Error al cargar: ", err));
   }, []);
-
-  const optionsEventos = eventos.map(evento => ({
-    value: evento.id,
-    label: evento.nombre
-  }));
-
-  const [entradas, setEntradas] = useState([]);
 
   useEffect(() => {
     fetch(`${API_URL}/api/entradas`)
@@ -156,13 +127,6 @@ export default function App() {
       .catch(err => console.error("Error al cargar: ", err));
   }, []);
 
-  const optionsEntradas = entradas.map(entrada => ({
-    value: entrada.id,
-    label: entrada.categoria
-  }));
-
-  const [productos, setProductos] = useState([]);
-
   useEffect(() => {
     fetch(`${API_URL}/api/productos`)
       .then(res => res.json())
@@ -170,237 +134,40 @@ export default function App() {
       .catch(err => console.error("Error al cargar: ", err));
   }, []);
 
+  const optionsCuentasFondos = cuentasFondos.map(cuenta => ({
+    value: cuenta.id,
+    label: cuenta.nombre
+  }));
+
+  const optionsAfectacionIngresos = afectacionIngresos.map(afectacion => ({
+    value: afectacion.id,
+    label: afectacion.destino
+  }));
+
+  const optionsEventos = eventos.map(evento => ({
+    value: evento.id,
+    label: evento.nombre
+  }));
+
+  const optionsEntradas = entradas.map(entrada => ({
+    value: entrada.id,
+    label: entrada.categoria
+  }));
+
   const optionsProductos = productos.map(producto => ({
     value: producto.id,
     label: producto.nombre
   }));
 
-  const [compromisos, setCompromisos] = useState(() => loadFromStorage("compromisos", []));
-  const [ordenesPago, setOrdenesPago] = useState(() => loadFromStorage("ordenesPago", []));
-  const [permisosAdministrativo, setPermisosAdministrativo] = useState(() =>
-    loadFromStorage("permisosAdministrativo", { canAddIngreso: true, canAddCompromiso: true, canOpenPUC: false, canChangePassword: false })
-  );
-  const [auditLogs, setAuditLogs] = useState(() => loadFromStorage("auditLogs", []));
+  const optionsSocios = socios.map(socio => ({
+    value: socio.id,
+    label: `${socio.apellido} ${socio.nombre} (${socio.dni})`
+  }));
 
-  const [nuevoComprobante, setNuevoComprobante] = useState("");
-  const [nuevoPUC, setNuevoPUC] = useState("112526");
-
-  const totalIngresos = ingresos.reduce((acc, i) => acc + (i.total || 0), 0);
-  const totalCompromisos = compromisos.reduce((acc, c) => acc + (c.total || 0), 0);
-  const balance = totalIngresos - totalCompromisos;
-
-  useEffect(() => saveToStorage("compromisos", compromisos), [compromisos]);
-  useEffect(() => saveToStorage("ordenesPago", ordenesPago), [ordenesPago]);
-  useEffect(() => saveToStorage("permisosAdministrativo", permisosAdministrativo), [permisosAdministrativo]);
-  useEffect(() => saveToStorage("auditLogs", auditLogs), [auditLogs]);
-  useEffect(() => saveToStorage("role", role), [role]);
-  useEffect(() => saveToStorage("darkMode", darkMode), [darkMode]);
-  useEffect(() => saveToStorage("coordinadorPassword", coordinadorPassword), [coordinadorPassword]);
-  useEffect(() => { document.title = "CAF Finanzas"; }, []);
-
-
-  function deepCopy(obj) {
-    try { return JSON.parse(JSON.stringify(obj)); } catch { return obj; }
-  }
-
-  function pushAuditLog(entry) {
-    setAuditLogs((prev) => {
-      const updated = [entry, ...prev].slice(0, AUDIT_LIMIT);
-      return updated;
-    });
-  }
-
-  function logAction({ user = role, action, resource = null, before = null, after = null, meta = null }) {
-    const log = {
-      id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      usuario: user,
-      accion: action,
-      recurso: resource,
-      antes: deepCopy(before),
-      despues: deepCopy(after),
-      meta,
-      timestamp: nowISO(),
-    };
-    pushAuditLog(log);
-  }
-
-  const calcIva = (monto, percent) => {
-    const iva = Math.round((Number(monto) * Number(percent) / 100) * 100) / 100;
-    const total = Math.round((Number(monto) + iva) * 100) / 100;
-    return { iva, total };
-  };
-
-  const exportBackup = () => {
-    const payload = {
-      ingresos,
-      compromisos,
-      ordenesPago,
-      pucReferencias,
-      permisosAdministrativo,
-      auditLogs,
-      role,
-      darkMode,
-      coordinadorPassword,
-      exportedAt: nowISO(),
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `backup-caf-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  };
-
-  function existeComprobanteDuplicado(comprobanteRaw, puc) {
-    const norm = normalizeComprobante(comprobanteRaw);
-    const year = new Date().getFullYear();
-    return ingresos.some((ing) => {
-      const ingNorm = normalizeComprobante(ing.comprobante);
-      const ingYear = new Date(ing.fecha).getFullYear();
-      return ingNorm === norm && ing.puc === puc && ingYear === year;
-    });
-  }
-
-  const handleProfileChange = (e) => {
-    const nuevo = e.target.value;
-    if (nuevo === "coordinador") {
-      const pass = prompt("Ingrese contraseña de Coordinador:");
-      if (pass === coordinadorPassword) {
-        setRole("coordinador");
-        logAction({ action: "login_rol", resource: "rol:coordinador", before: null, after: { rol: "coordinador" } });
-      } else {
-        alert("Contraseña incorrecta.");
-        e.target.value = "administrativo";
-      }
-    } else {
-      setRole("administrativo");
-      logAction({ action: "login_rol", resource: "rol:administrativo", before: null, after: { rol: "administrativo" } });
-    }
-  };
-
-
-  const agregarIngreso = (e) => {
-    e.preventDefault();
-    if (role !== "coordinador" && !permisosAdministrativo.canAddIngreso) {
-      alert("No tenés permiso para agregar ingresos.");
-      logAction({ action: "ingreso_creacion_denegada", resource: "ingresos", before: null, after: null });
-      return;
-    }
-    if (!nuevoComprobante || !nuevoMonto) return alert("Complete comprobante y monto.");
-
-    if (existeComprobanteDuplicado(nuevoComprobante, nuevoPUC)) {
-      logAction({ action: "ingreso_duplicado_intento", resource: `ingreso:${nuevoComprobante}`, before: ingresos, after: ingresos, meta: { comprobante: nuevoComprobante, puc: nuevoPUC } });
-      return alert("Comprobante duplicado detectado para el año actual. Revisa antes de continuar.");
-    }
-
-    const { iva, total } = calcIva(nuevoMonto, nuevoIvaPercent);
-    const nuevo = {
-      id: `ing-${Date.now()}`,
-      fecha: new Date().toISOString().split("T")[0],
-      monto: Number(nuevoMonto),
-      ivaPercent: Number(nuevoIvaPercent),
-      ivaMonto: iva,
-      total,
-      comprobante: nuevoComprobante,
-      comprobanteNorm: normalizeComprobante(nuevoComprobante),
-      puc: nuevoPUC,
-      version: 1,
-      updatedAt: nowISO(),
-    };
-
-    setIngresos((prev) => {
-      const before = deepCopy(prev);
-      const updated = [...prev, nuevo];
-      logAction({ action: "ingreso_creado", resource: `ingreso:${nuevo.id}`, before, after: updated });
-      return updated;
-    });
-
-    setNuevoFecha(new Date().toISOString().slice(0, 10));
-    setNuevoComprobante("");
-    setNuevoMonto("");
-    setNuevoPUC("112526");
-  };
-
-
-  function ActivityPage() {
-    const [items, setItems] = useState(() => loadFromStorage("auditLogs", []));
-    const [filters, setFilters] = useState({ usuario: "", accion: "", from: "", to: "" });
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => setItems(loadFromStorage("auditLogs", [])), []);
-
-    const applyFilters = () => {
-      const all = loadFromStorage("auditLogs", []);
-      const filtered = all.filter((l) => {
-        if (filters.usuario && !String(l.usuario).toLowerCase().includes(filters.usuario.toLowerCase())) return false;
-        if (filters.accion && !String(l.accion).toLowerCase().includes(filters.accion.toLowerCase())) return false;
-        if (filters.from && new Date(l.timestamp) < new Date(filters.from)) return false;
-        if (filters.to && new Date(l.timestamp) > new Date(filters.to + "T23:59:59")) return false;
-        return true;
-      });
-      setItems(filtered);
-    };
-
-    const exportCSV = () => {
-      const rows = items.map((r) => [
-        r.timestamp,
-        r.usuario,
-        r.accion,
-        r.recurso ?? "",
-        JSON.stringify(r.antes) ?? "",
-        JSON.stringify(r.despues) ?? "",
-        r.meta ? JSON.stringify(r.meta) : "",
-      ]);
-      const header = ["timestamp", "usuario", "accion", "recurso", "antes", "despues", "meta"];
-      const csv = [header, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
-      const blob = new Blob([csv], { type: "text/csv" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `audit-${new Date().toISOString().slice(0, 10)}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    };
-
-    return (
-      <div className="vista-panel">
-        <h3>Actividad / Audit Log</h3>
-        <div className="row" style={{ marginBottom: 12 }}>
-          <input className="vista-input" placeholder="Usuario" value={filters.usuario} onChange={(e) => setFilters((s) => ({ ...s, usuario: e.target.value }))} />
-          <input className="vista-input" placeholder="Acción" value={filters.accion} onChange={(e) => setFilters((s) => ({ ...s, accion: e.target.value }))} />
-          <input className="vista-input" type="date" value={filters.from} onChange={(e) => setFilters((s) => ({ ...s, from: e.target.value }))} />
-          <input className="vista-input" type="date" value={filters.to} onChange={(e) => setFilters((s) => ({ ...s, to: e.target.value }))} />
-          <button className="vista-button" onClick={applyFilters}>Filtrar local</button>
-          <button className="vista-button" onClick={() => { setLoading(true); setTimeout(() => setLoading(false), 400); }} disabled={loading}>Refrescar</button>
-          <button className="vista-button" onClick={exportCSV}>Exportar CSV</button>
-        </div>
-
-        <div className="table-wrap">
-          <table className="vista-table">
-            <thead><tr><th>Timestamp</th><th>Usuario</th><th>Acción</th><th>Recurso</th><th>Antes</th><th>Después</th><th>Meta</th></tr></thead>
-            <tbody>
-              {loading ? <tr><td colSpan="7">Cargando...</td></tr> : items.map((it) => (
-                <tr key={it.id}>
-                  <td>{new Date(it.timestamp).toLocaleString()}</td>
-                  <td>{it.usuario}</td>
-                  <td>{it.accion}</td>
-                  <td>{it.recurso}</td>
-                  <td style={{ maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.antes ? JSON.stringify(it.antes) : ""}</td>
-                  <td style={{ maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.despues ? JSON.stringify(it.despues) : ""}</td>
-                  <td style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.meta ? JSON.stringify(it.meta) : ""}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    );
-  }
 
   if (screen === "menu") {
     return (
-      <div className={`vista-window ${darkMode ? "dark" : ""}`}>
+      <div className="vista-window">
         <div className="vista-titlebar">
           <div className="title-left">
             <img src={escudo} alt="Escudo Club Atletico French" className="club-logo" />
@@ -422,7 +189,7 @@ export default function App() {
 
   if (screen === "ingresos") {
     return (
-      <div className={`vista-window ${darkMode ? "dark" : ""}`}>
+      <div className="vista-window">
         <div className="vista-titlebar">
           <div className="title-left"><button className="vista-button back-button" onClick={() => setScreen("menu")}>←</button><div className="club-title">Ingresos</div></div>
           <div className="title-right">
@@ -431,7 +198,7 @@ export default function App() {
 
         <div className="vista-content">
           <div className="vista-panel">
-            <form onSubmit={agregarIngreso} className="row" style={{ marginBottom: 12 }}>
+            <form onSubmit={handleInsertIngresos} className="row" style={{ marginBottom: 12 }}>
               <input className="vista-input"
                 placeholder="Fecha"
                 value={nuevoFecha}
