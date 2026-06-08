@@ -10,29 +10,29 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/ingresos', async (req, res) => {
+app.get('/api/income', async (req, res) => {
   try {
-    const ingresos = await db.sqlQuery('SELECT * FROM ingresos_detallados ORDER BY fecha DESC');
-    res.json(ingresos);
+    const result = await db.sqlQuery('SELECT * FROM ingresos_detallados ORDER BY fecha DESC');
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-app.post('/api/ingresos', async (req, res) => {
+app.post('/api/income', async (req, res) => {
   try {
-    const resultado = await db.rowCreate('ingresos', {
-      'fecha': req.body.fecha ? await db.calendarDateToId(req.body.fecha) : null,
-      'cuenta_fondos': req.body.cuentaFondos ? parseFloat(req.body.cuentaFondos) : null,
-      'monto': req.body.monto ? parseFloat(req.body.monto) : null,
-      'socio': req.body.socio ? parseInt(req.body.socio) : null,
-      'afectacion_ingreso': req.body.afectacion ? parseInt(req.body.afectacion) : null,
-      'evento': req.body.evento ? parseInt(req.body.evento) : null,
-      'entrada': req.body.entrada ? parseInt(req.body.entrada) : null,
-      'producto': req.body.producto ? parseInt(req.body.producto) : null
+    const result = await db.rowCreate('ingresos', {
+      'fecha': req.body.date ? await db.calendarDateToId(req.body.date) : null,
+      'cuenta_fondos': req.body.fundAccount ? parseFloat(req.body.fundAccount) : null,
+      'monto': req.body.amount ? parseFloat(req.body.amount) : null,
+      'socio': req.body.member ? parseInt(req.body.member) : null,
+      'afectacion_ingreso': req.body.allocation ? parseInt(req.body.allocation) : null,
+      'evento': req.body.event ? parseInt(req.body.event) : null,
+      'entrada': req.body.ticket ? parseInt(req.body.ticket) : null,
+      'producto': req.body.product ? parseInt(req.body.product) : null
     });
 
-    res.status(201).json({ success: true, data: resultado });
+    res.status(201).json({ success: true, data: result });
 
   } catch (error) {
     console.error(error);
@@ -40,66 +40,66 @@ app.post('/api/ingresos', async (req, res) => {
   }
 });
 
-app.delete('/api/ingresos/:id', async (req, res) => {
+app.delete('/api/income/:id', async (req, res) => {
   const { id } = req.params;
   try {
     await db.sqlQuery(`DELETE FROM ingresos WHERE id = ${id}`);
-    res.json({ success: true, message: 'Ingreso eliminado correctamente.' });
+    res.json({ success: true, message: 'An income was deleted successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-app.get('/api/socios', async (req, res) => {
+app.get('/api/member', async (req, res) => {
   try {
-    const socios = await db.sqlQuery('SELECT * FROM socios');
-    res.json(socios);
+    const result = await db.sqlQuery('SELECT * FROM socios');
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-app.get('/api/cuentas-fondos', async (req, res) => {
+app.get('/api/fund-account', async (req, res) => {
   try {
-    const cuentasFondos = await db.sqlQuery('SELECT * FROM cuentas_fondos');
-    res.json(cuentasFondos);
+    const result = await db.sqlQuery('SELECT * FROM cuentas_fondos');
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-app.get('/api/afectacion-ingresos', async (req, res) => {
+app.get('/api/allocation', async (req, res) => {
   try {
-    const afectacionIngresos = await db.sqlQuery('SELECT * FROM afectacion_ingresos');
-    res.json(afectacionIngresos);
+    const result = await db.sqlQuery('SELECT * FROM afectacion_ingresos');
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-app.get('/api/eventos', async (req, res) => {
+app.get('/api/event', async (req, res) => {
   try {
-    const eventos = await db.sqlQuery('SELECT * FROM eventos');
-    res.json(eventos);
+    const result = await db.sqlQuery('SELECT * FROM eventos');
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-app.get('/api/entradas', async (req, res) => {
+app.get('/api/ticket', async (req, res) => {
   try {
-    const entradas = await db.sqlQuery('SELECT * FROM entradas');
-    res.json(entradas);
+    const result = await db.sqlQuery('SELECT * FROM entradas');
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-app.get('/api/productos', async (req, res) => {
+app.get('/api/product', async (req, res) => {
   try {
-    const productos = await db.sqlQuery('SELECT * FROM productos');
-    res.json(productos);
+    const result = await db.sqlQuery('SELECT * FROM productos');
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }

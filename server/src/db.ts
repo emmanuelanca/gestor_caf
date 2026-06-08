@@ -92,44 +92,44 @@ export function calendarCreateYear(targetYear: number): void {
 }
 
 export async function rowCreate(
-  dimension: string,
+  table: string,
   args: Record<string, any>
 ): Promise<void> {
   const columns = Object.keys(args).join(', ');
   const placeholders = Object.keys(args).map(() => '?').join(', ');
   const values = Object.values(args);
 
-  const query = `INSERT INTO ${dimension} (${columns}) VALUES (${placeholders})`;
+  const query = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`;
 
   await pool.query(query, values);
 
-  console.log(`Registro creado con éxito en la dimensión: ${dimension}`);
+  console.log(`Row created in ${table}`);
 }
 
 export async function rowEdit(
-  dimension: string,
+  table: string,
   id: number,
   args: Record<string, any>
 ): Promise<void> {
   const assignments = Object.keys(args).map((key) => `${key} = ?`).join(', ');
   const values = [...Object.values(args), id];
 
-  const query = `UPDATE ${dimension} SET ${assignments} WHERE id = ?`;
+  const query = `UPDATE ${table} SET ${assignments} WHERE id = ?`;
 
   await pool.query(query, values);
 
-  console.log(`Registro ${id} actualizado con éxito en la dimensión: ${dimension}`);
+  console.log(`Row edited in ${table}: id ${id}`);
 }
 
 export async function rowDelete(
-  dimension: string,
+  table: string,
   id: number
 ): Promise<void> {
-  const query = `DELETE FROM ${dimension} WHERE id = ?`;
+  const query = `DELETE FROM ${table} WHERE id = ?`;
 
   await pool.query(query, [id]);
 
-  console.log(`Registro ${id} eliminado con éxito de la dimensión: ${dimension}`);
+  console.log(`Row deleted in ${table}: id ${id}`);
 }
 
 export async function pucGetHierarchy(id: number): Promise<string> {
@@ -144,24 +144,24 @@ export async function pucGetHierarchy(id: number): Promise<string> {
 
     if (rows.length === 0) break;
 
-    const { padre, subnivel } = rows[0];
-    hierarchy.unshift(subnivel);
-    currentId = padre;
+    const { parent, sublevel } = rows[0];
+    hierarchy.unshift(sublevel);
+    currentId = parent;
   }
 
   return hierarchy.join('.');
 }
 
 export async function pucCreate(
-  padre: number,
-  subnivel: number,
+  parent: number,
+  sublevel: number,
   args: Record<string, any>
 ): Promise<void> {
-  const codigo = `${await pucGetHierarchy(padre)}.${subnivel}`
+  const code = `${await pucGetHierarchy(parent)}.${sublevel}`
   await rowCreate("puc", {
     ...args,
-    padre: padre,
-    subnivel: subnivel,
-    codigo: codigo
+    parent: parent,
+    sublevel: sublevel,
+    code: code
   })
 }
