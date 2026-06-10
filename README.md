@@ -17,4 +17,3 @@ DB_NAME=club_french
 ```
 VITE_API_URL=http://ip de tu pc:5000
 ```
-```
