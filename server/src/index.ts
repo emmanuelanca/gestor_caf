@@ -51,6 +51,40 @@ app.delete('/api/income/:id', async (req, res) => {
   }
 });
 
+app.get('/api/commitment', async (req, res) => {
+  try {
+    const result = await db.sqlQuery('SELECT * FROM compromisos_detallados');
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/commitment', async (req, res) => {
+  try {
+    const result = await db.rowCreate('compromisos', {
+    });
+
+    res.status(201).json({ success: true, data: result });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/api/commitment/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.sqlQuery(`DELETE FROM compromisos WHERE id = ${id}`);
+    res.json({ success: true, message: 'An commitment was deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.get('/api/member', async (req, res) => {
   try {
     const result = await db.sqlQuery('SELECT * FROM socios');
@@ -99,6 +133,48 @@ app.get('/api/ticket', async (req, res) => {
 app.get('/api/product', async (req, res) => {
   try {
     const result = await db.sqlQuery('SELECT * FROM productos');
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/fund-movement', async (req, res) => {
+  try {
+    const result = await db.sqlQuery('SELECT * FROM movimientos_fondos_detallados');
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/fund-movement', async (req, res) => {
+  try {
+    const result = await db.rowCreate('movimientos_fondos', {
+    });
+
+    res.status(201).json({ success: true, data: result });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/api/fund-movement/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.sqlQuery(`DELETE FROM movimientos_fondos WHERE id = ${id}`);
+    res.json({ success: true, message: 'A fund movement was deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/voucher', async (req, res) => {
+  try {
+    const result = await db.sqlQuery('SELECT * FROM comprobantes');
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });

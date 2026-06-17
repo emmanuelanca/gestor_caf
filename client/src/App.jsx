@@ -4,10 +4,13 @@ import escudo from '/src/assets/escudo.png';
 import { MdAccountBalanceWallet } from 'react-icons/md';
 import { useIncome } from './hooks/useIncome';
 import IncomePanel from './components/IncomePanel';
+import { useFundMovement } from './hooks/useFundMovement';
+import FundMovementPanel from './components/FundMovementPanel';
 
 export default function App() {
-  const [screen, setScreen] = useState('menu');
+  const [screen, setScreen] = useState('fundMovement');
   const incomeData = useIncome();
+  const fundMovementData = useFundMovement();
 
   if (screen === "menu") {
     return (
@@ -50,5 +53,23 @@ export default function App() {
     );
   }
 
+  if (screen === "fundMovement") {
+    return (
+      <div className="vista-window">
+        <div className="vista-titlebar">
+          <div className="title-left">
+            <button className="vista-button back-button" onClick={() => setScreen("menu")}>←</button>
+            <div className="club-title">Movimientos de fondos</div>
+          </div>
+          <div className="title-right">
+          </div>
+        </div>
+
+        <div className="vista-content">
+          <FundMovementPanel fundMovementData={fundMovementData} />
+        </div>
+      </div>
+    );
+  }
   return null;
 }

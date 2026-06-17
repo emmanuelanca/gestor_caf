@@ -64,7 +64,7 @@ CREATE TABLE personal_deportivo (
 
 CREATE TABLE comprobantes (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    numero BIGINT NOT NULL,
+    numero VARCHAR(100) NOT NULL,
     tipo VARCHAR(100) NOT NULL,
     fecha_emision DATE NOT NULL,
     referencia INT,
