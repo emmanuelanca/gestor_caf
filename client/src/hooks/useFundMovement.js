@@ -4,7 +4,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export function useFundMovement() {
   const [fundMovement, setFundMovement] = useState([]);
-  const [date, setDate] = useState([]);
   const [fundAccount, setFundAccount] = useState([]);
   const [commitment, setCommitment] = useState([]);
   const [income, setIncome] = useState([]);
@@ -31,12 +30,12 @@ export function useFundMovement() {
     if (e) e.preventDefault();
     try {
       const values = {
-        fecha: newDate,
-        cuenta_fondos: newFundAccount,
-        monto: newAmount,
-        compromiso: newCommitment || null,
-        ingreso: newIncome || null,
-        comprobante: newVoucher || null
+        date: newDate,
+        fundAccount: newFundAccount,
+        amount: newAmount,
+        commitment: newCommitment || null,
+        income: newIncome || null,
+        voucher: newVoucher || null
       };
 
       await fetch(`${API_URL}/api/fund-movement`, {
@@ -77,8 +76,8 @@ export function useFundMovement() {
   useEffect(() => { fetch(`${API_URL}/api/voucher`).then(r => r.json()).then(setVoucher); }, []);
 
   const optionsFundAccount = fundAccount.map(f => ({ value: f.id, label: f.nombre }));
-  const optionsCommitment = commitment.map(c => ({ value: c.id, label: `Compromiso #${c.id} - Monto: ${c.monto}` }));
-  const optionsIncome = income.map(i => ({ value: i.id, label: `Ingreso #${i.id} - Monto: ${i.monto}` }));
+  const optionsCommitment = commitment.map(c => ({ value: c.id, label: `#${c.comprobante_numero} $${c.monto}` }));
+  const optionsIncome = income.map(i => ({ value: i.id, label: `#${i.id} - $${i.monto}` }));
   const optionsVoucher = voucher.map(v => ({ value: v.id, label: `${v.tipo} N° ${v.numero}` }));
 
   return {
