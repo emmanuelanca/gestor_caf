@@ -15,6 +15,7 @@ app.get('/api/income', async (req, res) => {
     const result = await db.sqlQuery('SELECT * FROM ingresos_detallados ORDER BY fecha DESC');
     res.json(result);
   } catch (error) {
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -35,7 +36,7 @@ app.post('/api/income', async (req, res) => {
     res.status(201).json({ success: true, data: result });
 
   } catch (error) {
-    console.error(error);
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -46,7 +47,7 @@ app.delete('/api/income/:id', async (req, res) => {
     await db.sqlQuery(`DELETE FROM ingresos WHERE id = ${id}`);
     res.json({ success: true, message: 'An income was deleted successfully' });
   } catch (error) {
-    console.error(error);
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -56,7 +57,7 @@ app.get('/api/commitment', async (req, res) => {
     const result = await db.sqlQuery('SELECT * FROM compromisos_detallados');
     res.json(result);
   } catch (error) {
-    console.log(error);
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -69,7 +70,7 @@ app.post('/api/commitment', async (req, res) => {
     res.status(201).json({ success: true, data: result });
 
   } catch (error) {
-    console.error(error);
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -80,7 +81,7 @@ app.delete('/api/commitment/:id', async (req, res) => {
     await db.sqlQuery(`DELETE FROM compromisos WHERE id = ${id}`);
     res.json({ success: true, message: 'An commitment was deleted successfully' });
   } catch (error) {
-    console.error(error);
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -90,6 +91,7 @@ app.get('/api/member', async (req, res) => {
     const result = await db.sqlQuery('SELECT * FROM socios');
     res.json(result);
   } catch (error) {
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -99,6 +101,7 @@ app.get('/api/fund-account', async (req, res) => {
     const result = await db.sqlQuery('SELECT * FROM cuentas_fondos');
     res.json(result);
   } catch (error) {
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -108,6 +111,7 @@ app.get('/api/allocation', async (req, res) => {
     const result = await db.sqlQuery('SELECT * FROM afectacion_ingresos');
     res.json(result);
   } catch (error) {
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -117,6 +121,7 @@ app.get('/api/event', async (req, res) => {
     const result = await db.sqlQuery('SELECT * FROM eventos');
     res.json(result);
   } catch (error) {
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -126,6 +131,7 @@ app.get('/api/ticket', async (req, res) => {
     const result = await db.sqlQuery('SELECT * FROM entradas');
     res.json(result);
   } catch (error) {
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -135,6 +141,7 @@ app.get('/api/product', async (req, res) => {
     const result = await db.sqlQuery('SELECT * FROM productos');
     res.json(result);
   } catch (error) {
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -144,6 +151,7 @@ app.get('/api/fund-movement', async (req, res) => {
     const result = await db.sqlQuery('SELECT * FROM movimientos_fondos_detallados');
     res.json(result);
   } catch (error) {
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -156,7 +164,7 @@ app.post('/api/fund-movement', async (req, res) => {
     res.status(201).json({ success: true, data: result });
 
   } catch (error) {
-    console.error(error);
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -167,7 +175,7 @@ app.delete('/api/fund-movement/:id', async (req, res) => {
     await db.sqlQuery(`DELETE FROM movimientos_fondos WHERE id = ${id}`);
     res.json({ success: true, message: 'A fund movement was deleted successfully' });
   } catch (error) {
-    console.error(error);
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -177,12 +185,13 @@ app.get('/api/voucher', async (req, res) => {
     const result = await db.sqlQuery('SELECT * FROM comprobantes');
     res.json(result);
   } catch (error) {
+    console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
 app.listen(Number(PORT), '0.0.0.0', () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running...`);
 });
 
 const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
