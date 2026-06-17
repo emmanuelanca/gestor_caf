@@ -89,7 +89,7 @@ export default function FundMovementPanel({ fundMovementData }) {
                       fontWeight: 'bold',
                       padding: '0 5px'
                     }}
-                    title="Eliminar movimiento de fondo"
+                    title="Eliminar movimiento"
                   >
                     &times;
                   </button>

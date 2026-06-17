@@ -148,7 +148,7 @@ app.get('/api/product', async (req, res) => {
 
 app.get('/api/fund-movement', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM movimientos_fondos_detallados');
+    const result = await db.sqlQuery('SELECT * FROM movimientos_fondos_detallados ORDER BY fechas_fecha DESC');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -159,6 +159,12 @@ app.get('/api/fund-movement', async (req, res) => {
 app.post('/api/fund-movement', async (req, res) => {
   try {
     const result = await db.rowCreate('movimientos_fondos', {
+      'fecha': req.body.date ? await db.calendarDateToId(req.body.date) : null,
+      'cuenta_fondos': req.body.fundAccount,
+      'monto': req.body.amount,
+      'compromiso': req.body.commitment,
+      'ingreso': req.body.income,
+      'comprobante': req.body.voucher,
     });
 
     res.status(201).json({ success: true, data: result });
