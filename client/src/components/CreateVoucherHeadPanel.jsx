@@ -6,14 +6,16 @@ export default function CreateVoucherHeadPanel({ voucherHeadData }) {
       <h3>Crear Cabecera de Comprobante</h3>
       <form onSubmit={voucherHeadData.handleInsertVoucherHead} className="row" style={{ marginBottom: 12 }}>
 
-        <input
-          className="vista-input"
-          placeholder="Tipo (e.g. Factura A, Remito)"
-          value={voucherHeadData.newType}
-          onChange={(e) => voucherHeadData.setNewType(e.target.value)}
-          type="text"
-          required
-        />
+        <div className="vista-input">
+          <Select
+            placeholder="Seleccionar Tipo..."
+            value={voucherHeadData.optionsType.find(o => o.value === voucherHeadData.newType) || null}
+            onChange={(e) => voucherHeadData.setNewType(e ? e.value : "")}
+            options={voucherHeadData.optionsType}
+            isClearable
+            required
+          />
+        </div>
 
         <input
           className="vista-input"
