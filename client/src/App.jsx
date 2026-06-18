@@ -8,12 +8,15 @@ import { useFundMovement } from './hooks/useFundMovement';
 import FundMovementPanel from './components/FundMovementPanel';
 import { usePendingCommitment } from './hooks/usePendingCommitment';
 import PendingCommitmentPanel from './components/PendingCommitmentPanel';
+import { useVoucherHead } from './hooks/useVoucherHead';
+import CreateVoucherHeadPanel from './components/CreateVoucherHeadPanel';
 
 export default function App() {
   const [screen, setScreen] = useState('menu');
   const incomeData = useIncome();
   const fundMovementData = useFundMovement();
   const pendingCommitmentData = usePendingCommitment();
+  const voucherHeadData = useVoucherHead();
 
   if (screen === "menu") {
     return (
@@ -39,6 +42,10 @@ export default function App() {
           <button className="menu-tile primary-tile vertical" onClick={() => setScreen("pendingCommitment")}>
             <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
             <div className="tile-text"><div className="tile-title">Compromisos pendientes</div><div className="tile-desc">Ver y pagar compromisos pendientes</div></div>
+          </button>
+          <button className="menu-tile primary-tile vertical" onClick={() => setScreen("createVoucherHead")}>
+            <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
+            <div className="tile-text"><div className="tile-title">Crear comprobante rapido</div><div className="tile-desc">Crear comprobante rapido</div></div>
           </button>
         </div>
       </div>
@@ -102,5 +109,23 @@ export default function App() {
     );
   }
 
+  if (screen === "createVoucherHead") {
+    return (
+      <div className="vista-window">
+        <div className="vista-titlebar">
+          <div className="title-left">
+            <button className="vista-button back-button" onClick={() => setScreen("menu")}>←</button>
+            <div className="club-title">Crear comprobante rapido</div>
+          </div>
+          <div className="title-right">
+          </div>
+        </div>
+
+        <div className="vista-content">
+          <CreateVoucherHeadPanel voucherHeadData={voucherHeadData} />
+        </div>
+      </div>
+    );
+  }
   return null;
 }
