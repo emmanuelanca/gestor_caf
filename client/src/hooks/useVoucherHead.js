@@ -46,12 +46,21 @@ export function useVoucherHead() {
 
   const optionsProvider = provider.map(p => ({ value: p.id, label: `${p.nombre} (${p.cuit})` }));
 
+  const optionsType = [
+    { value: 'factura_a', label: 'Factura A' },
+    { value: 'factura_b', label: 'Factura B' },
+    { value: 'factura_c', label: 'Factura C' },
+    { value: 'factura_e', label: 'Factura E' },
+    { value: 'recibo', label: 'Recibo' }
+  ];
+
   return {
     newType, setNewType,
     newNumber, setNewNumber,
     newDate, setNewDate,
     newProvider, setNewProvider,
     optionsProvider,
+    optionsType,
     handleInsertVoucherHead
   };
 }
