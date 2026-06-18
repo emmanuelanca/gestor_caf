@@ -1,4 +1,5 @@
-DROP VIEW IF EXISTS vista_eventos;
+DROP VIEW IF EXISTS ingresos_detallados;
+DROP VIEW IF EXISTS movimientos_fondos_detallados;
 DROP TABLE IF EXISTS movimientos_fondos;
 DROP TABLE IF EXISTS compromisos;
 DROP TABLE IF EXISTS ingresos;
@@ -249,3 +250,24 @@ LEFT JOIN afectacion_ingresos ai ON i.afectacion_ingreso = ai.id
 LEFT JOIN entradas ee ON i.entrada = ee.id
 LEFT JOIN eventos e ON i.evento = e.id
 LEFT JOIN productos p ON i.producto = p.id;
+
+CREATE VIEW movimientos_fondos_detallados AS
+SELECT
+    f.fecha AS fecha,
+    cf.nombre AS cuenta_fondos_nombre,
+    mf.monto,
+    mf.compromiso,
+    mf.ingreso,
+    comp_mov.numero AS comprobante_numero,
+    comp_compromiso.numero AS comprobante_referencia_numero,
+    CASE 
+        WHEN mf.compromiso IS NOT NULL THEN -1
+        WHEN mf.ingreso IS NOT NULL THEN 1
+        ELSE 1 
+    END AS factor
+FROM movimientos_fondos mf
+INNER JOIN fechas f ON mf.fecha = f.id
+INNER JOIN cuentas_fondos cf ON mf.cuenta_fondos = cf.id
+LEFT JOIN compromisos c ON mf.compromiso = c.id
+LEFT JOIN comprobantes comp_compromiso ON c.comprobante = comp_compromiso.id
+LEFT JOIN comprobantes comp_mov ON mf.comprobante = comp_mov.id;

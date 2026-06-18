@@ -33,7 +33,7 @@ export function useIncome() {
   const handleInsertIncome = async (e) => {
     if (e) e.preventDefault();
     try {
-      const values = {
+      const valuesIncome = {
         date: newDate,
         fundAccount: newFundAccount,
         amount: newAmount,
@@ -47,7 +47,7 @@ export function useIncome() {
       await fetch(`${API_URL}/api/income`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values)
+        body: JSON.stringify(valuesIncome)
       });
 
       await fetchIncome();

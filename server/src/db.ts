@@ -98,12 +98,10 @@ export async function rowCreate(
   const columns = Object.keys(args).join(', ');
   const placeholders = Object.keys(args).map(() => '?').join(', ');
   const values = Object.values(args);
-
   const query = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`;
-
-  await pool.query(query, values);
-
+  const rows = await pool.query(query, values);
   console.log(`Row created in ${table}`);
+  return rows.insertId;
 }
 
 export async function rowEdit(

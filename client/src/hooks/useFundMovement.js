@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -69,6 +69,10 @@ export function useFundMovement() {
     }
   };
 
+  const totalBalance = fundMovement.reduce((acc, item) => {
+    return acc + (item.monto * item.factor);
+  }, 0);
+
   useEffect(() => { fetchFundMovement(); }, []);
   useEffect(() => { fetch(`${API_URL}/api/fund-account`).then(r => r.json()).then(setFundAccount); }, []);
   useEffect(() => { fetch(`${API_URL}/api/commitment`).then(r => r.json()).then(setCommitment); }, []);
@@ -94,5 +98,6 @@ export function useFundMovement() {
     optionsVoucher,
     handleDeleteFundMovement,
     handleInsertFundMovement,
+    totalBalance,
   };
 }
