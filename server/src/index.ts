@@ -22,7 +22,7 @@ app.get('/api/income', async (req, res) => {
 
 app.post('/api/income', async (req, res) => {
   try {
-    const result = await db.rowCreate('ingresos', {
+    const income = await db.rowCreate('ingresos', {
       'fecha': req.body.date ? await db.calendarDateToId(req.body.date) : null,
       'cuenta_fondos': req.body.fundAccount ? parseFloat(req.body.fundAccount) : null,
       'monto': req.body.amount ? parseFloat(req.body.amount) : null,
@@ -33,7 +33,14 @@ app.post('/api/income', async (req, res) => {
       'producto': req.body.product ? parseInt(req.body.product) : null
     });
 
-    res.status(201).json({ success: true, data: result });
+    await db.rowCreate('movimientos_fondos', {
+      'fecha': req.body.date ? await db.calendarDateToId(req.body.date) : null,
+      'cuenta_fondos': req.body.fundAccount ? parseFloat(req.body.fundAccount) : null,
+      'monto': req.body.amount ? parseFloat(req.body.amount) : null,
+      'ingreso': income,
+    });
+
+    res.status(201).json({ success: true });
 
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -148,7 +155,7 @@ app.get('/api/product', async (req, res) => {
 
 app.get('/api/fund-movement', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM movimientos_fondos_detallados ORDER BY fechas_fecha DESC');
+    const result = await db.sqlQuery('SELECT * FROM movimientos_fondos_detallados ORDER BY fecha DESC');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);

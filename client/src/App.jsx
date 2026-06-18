@@ -8,7 +8,7 @@ import { useFundMovement } from './hooks/useFundMovement';
 import FundMovementPanel from './components/FundMovementPanel';
 
 export default function App() {
-  const [screen, setScreen] = useState('fundMovement');
+  const [screen, setScreen] = useState('menu');
   const incomeData = useIncome();
   const fundMovementData = useFundMovement();
 
@@ -28,6 +28,10 @@ export default function App() {
           <button className="menu-tile primary-tile vertical" onClick={() => setScreen("income")}>
             <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
             <div className="tile-text"><div className="tile-title">Ingresos</div><div className="tile-desc">Registrar y ver income</div></div>
+          </button>
+          <button className="menu-tile primary-tile vertical" onClick={() => setScreen("fundMovement")}>
+            <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
+            <div className="tile-text"><div className="tile-title">Movimientos de fondos</div><div className="tile-desc">Registrar y ver income</div></div>
           </button>
         </div>
       </div>
