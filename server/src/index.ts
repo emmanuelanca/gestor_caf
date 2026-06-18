@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import * as db from './db';
-import * as test from './test';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -196,6 +195,60 @@ app.delete('/api/fund-movement/:id', async (req, res) => {
 app.get('/api/voucher', async (req, res) => {
   try {
     const result = await db.sqlQuery('SELECT * FROM comprobantes');
+    res.json(result);
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/pending-commitment', async (req, res) => {
+  try {
+    const result = await db.sqlQuery('SELECT * FROM compromisos_pendientes ORDER BY fecha_vencimiento DESC');
+    res.json(result);
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/pending-commitment', async (req, res) => {
+  try {
+    await db.rowCreate('movimientos_fondos', {
+      'fecha': req.body.date ? await db.calendarDateToId(req.body.date) : null,
+      'cuenta_fondos': req.body.fundAccount ? parseInt(req.body.fundAccount) : null,
+      'monto': req.body.amount ? parseInt(req.body.amount) : null,
+      'compromiso': req.body.commitment,
+    });
+
+    res.status(201).json({ success: true });
+
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/voucher-head', async (req, res) => {
+  try {
+    await db.rowCreate('comprobantes_cabecera', {
+      'tipo': req.body.type,
+      'fecha': req.body.date ? await db.calendarDateToId(req.body.date) : null,
+      'numero': req.body.number,
+      'proveedor': req.body.provider ? parseInt(req.body.provider) : null,
+    });
+
+    res.status(201).json({ success: true });
+
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/provider', async (req, res) => {
+  try {
+    const result = await db.sqlQuery('SELECT * FROM proveedores');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);

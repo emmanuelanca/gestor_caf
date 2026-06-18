@@ -1,25 +1,29 @@
-DROP VIEW IF EXISTS ingresos_detallados;
-DROP VIEW IF EXISTS movimientos_fondos_detallados;
-DROP TABLE IF EXISTS movimientos_fondos;
-DROP TABLE IF EXISTS compromisos;
-DROP TABLE IF EXISTS ingresos;
-DROP TABLE IF EXISTS eventos;
-DROP TABLE IF EXISTS entradas;
-DROP TABLE IF EXISTS cuentas_fondos;
-DROP TABLE IF EXISTS fechas;
-DROP TABLE IF EXISTS socios;
 DROP TABLE IF EXISTS afectacion_ingresos;
-DROP TABLE IF EXISTS socios_categorias;
-DROP TABLE IF EXISTS puc;
-DROP TABLE IF EXISTS productos;
 DROP TABLE IF EXISTS comprobantes;
-DROP TABLE IF EXISTS personal_deportivo;
+DROP TABLE IF EXISTS comprobantes_cabecera;
+DROP TABLE IF EXISTS comprobantes_cola;
+DROP TABLE IF EXISTS compromisos;
+DROP TABLE IF EXISTS cuentas_fondos;
+DROP TABLE IF EXISTS dependencias;
+DROP TABLE IF EXISTS entradas;
+DROP TABLE IF EXISTS eventos;
+DROP TABLE IF EXISTS fechas;
+DROP TABLE IF EXISTS honorarios;
+DROP TABLE IF EXISTS ingresos;
 DROP TABLE IF EXISTS insumos;
+DROP TABLE IF EXISTS ligas;
+DROP TABLE IF EXISTS movimientos_fondos;
+DROP TABLE IF EXISTS personal_deportivo;
+DROP TABLE IF EXISTS productos;
+DROP TABLE IF EXISTS proveedores
+DROP TABLE IF EXISTS puc;
 DROP TABLE IF EXISTS servicios;
 DROP TABLE IF EXISTS servicios_legales;
-DROP TABLE IF EXISTS honorarios;
-DROP TABLE IF EXISTS dependencias;
-DROP TABLE IF EXISTS ligas;
+DROP TABLE IF EXISTS socios;
+DROP TABLE IF EXISTS socios_categorias;
+DROP VIEW IF EXISTS compromisos_pendientes;
+DROP VIEW IF EXISTS ingresos_detallados;
+DROP VIEW IF EXISTS movimientos_fondos_detallados;
 
 CREATE TABLE ligas (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -271,3 +275,59 @@ INNER JOIN cuentas_fondos cf ON mf.cuenta_fondos = cf.id
 LEFT JOIN compromisos c ON mf.compromiso = c.id
 LEFT JOIN comprobantes comp_compromiso ON c.comprobante = comp_compromiso.id
 LEFT JOIN comprobantes comp_mov ON mf.comprobante = comp_mov.id;
+DROP VIEW IF EXISTS compromisos_pendientes;
+
+CREATE VIEW compromisos_pendientes AS
+SELECT
+    c.id,
+    f_dev.fecha AS fecha_devengamiento,
+    f_venc.fecha AS fecha_vencimiento,
+    p.codigo AS puc_codigo,
+    p.nombre AS puc_nombre,
+    c.monto,
+    comp.numero AS comprobante_numero,
+    CASE 
+        WHEN c.personal_deportivo IS NOT NULL THEN 'Personal Deportivo'
+        WHEN c.evento             IS NOT NULL THEN 'Evento'
+        WHEN c.insumo             IS NOT NULL THEN 'Insumo'
+        WHEN c.producto           IS NOT NULL THEN 'Producto'
+        WHEN c.servicio           IS NOT NULL THEN 'Servicio'
+        WHEN c.servicio_legal     IS NOT NULL THEN 'Servicio Legal'
+        WHEN c.honorarios         IS NOT NULL THEN 'Honorarios'
+        WHEN c.dependencia        IS NOT NULL THEN 'Dependencia'
+        WHEN c.liga               IS NOT NULL THEN 'Liga'
+        ELSE 'Otros'
+    END AS origen_tipo
+FROM compromisos c
+INNER JOIN fechas f_dev ON c.fecha_devengamiento = f_dev.id
+INNER JOIN fechas f_venc ON c.fecha_vencimiento = f_venc.id
+INNER JOIN puc p ON c.puc = p.id
+LEFT JOIN comprobantes comp ON c.comprobante = comp.id
+WHERE c.id NOT IN (
+    SELECT mf.compromiso 
+    FROM movimientos_fondos mf 
+    WHERE mf.compromiso IS NOT NULL
+);
+
+CREATE TABLE proveedores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    cuit VARCHAR(20) NOT NULL UNIQUE
+) ENGINE=InnoDB;
+
+CREATE TABLE comprobantes_cabecera (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tipo VARCHAR(100) NOT NULL,
+    numero VARCHAR(100) NOT NULL,
+    fecha INT NOT NULL,
+    proveedor INT,
+    CONSTRAINT fk_comp_cabecera_fechas FOREIGN KEY (fecha) REFERENCES fechas(id),
+    CONSTRAINT fk_comp_cabecera_proveedor FOREIGN KEY (proveedor) REFERENCES proveedores(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE comprobantes_cola (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cabecera INT NOT NULL,
+    detalles VARCHAR(200),
+    CONSTRAINT fk_comp_cola_cabecera FOREIGN KEY (cabecera) REFERENCES comprobantes_cabecera(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
