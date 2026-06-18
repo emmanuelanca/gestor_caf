@@ -15,7 +15,7 @@ export default function FundMovementPanel({ fundMovementData }) {
         alignItems: 'center',
         boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
       }}>
-        <span style={{ fontWeight: '6px', color: '#555', fontSize: '16px' }}>Balance Final Acumulado:</span>
+        <span style={{ fontWeight: '6px', color: '#555', fontSize: '16px' }}>Balance:</span>
         <span style={{
           fontSize: '22px',
           fontWeight: 'bold',
@@ -28,6 +28,7 @@ export default function FundMovementPanel({ fundMovementData }) {
         <table className="vista-table">
           <thead>
             <tr>
+              <th>Tipo</th>
               <th>Fecha</th>
               <th>Cuenta Fondos</th>
               <th>Monto</th>
@@ -38,6 +39,9 @@ export default function FundMovementPanel({ fundMovementData }) {
           <tbody>
             {fundMovementData.fundMovement.map((item) => (
               <tr key={item.id}>
+                <td style={{ color: item.factor === 1 ? 'green' : 'red' }}>
+                  {item.factor === 1 ? 'Ingreso' : 'Egreso'}
+                </td>
                 <td>{item.fecha ? new Date(item.fecha).toLocaleDateString() : '-'}</td>
                 <td>{item.cuentas_fondos_nombre || '-'}</td>
                 <td>${item.monto}</td>
