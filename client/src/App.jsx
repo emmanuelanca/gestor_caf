@@ -6,11 +6,14 @@ import { useIncome } from './hooks/useIncome';
 import IncomePanel from './components/IncomePanel';
 import { useFundMovement } from './hooks/useFundMovement';
 import FundMovementPanel from './components/FundMovementPanel';
+import { usePendingCommitment } from './hooks/usePendingCommitment';
+import PendingCommitmentPanel from './components/PendingCommitmentPanel';
 
 export default function App() {
   const [screen, setScreen] = useState('menu');
   const incomeData = useIncome();
   const fundMovementData = useFundMovement();
+  const pendingCommitmentData = usePendingCommitment();
 
   if (screen === "menu") {
     return (
@@ -32,6 +35,10 @@ export default function App() {
           <button className="menu-tile primary-tile vertical" onClick={() => setScreen("fundMovement")}>
             <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
             <div className="tile-text"><div className="tile-title">Movimientos de fondos</div><div className="tile-desc">Ver movimientos de fondos</div></div>
+          </button>
+          <button className="menu-tile primary-tile vertical" onClick={() => setScreen("pendingCommitment")}>
+            <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
+            <div className="tile-text"><div className="tile-title">Compromisos pendientes</div><div className="tile-desc">Ver y pagar compromisos pendientes</div></div>
           </button>
         </div>
       </div>
@@ -75,5 +82,25 @@ export default function App() {
       </div>
     );
   }
+
+  if (screen === "pendingCommitment") {
+    return (
+      <div className="vista-window">
+        <div className="vista-titlebar">
+          <div className="title-left">
+            <button className="vista-button back-button" onClick={() => setScreen("menu")}>←</button>
+            <div className="club-title">Compromisos pendientes</div>
+          </div>
+          <div className="title-right">
+          </div>
+        </div>
+
+        <div className="vista-content">
+          <PendingCommitmentPanel pendingCommitmentData={pendingCommitmentData} />
+        </div>
+      </div>
+    );
+  }
+
   return null;
 }
