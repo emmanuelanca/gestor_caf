@@ -27,11 +27,11 @@ export default function App() {
         <div className="vista-content menu-vertical">
           <button className="menu-tile primary-tile vertical" onClick={() => setScreen("income")}>
             <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
-            <div className="tile-text"><div className="tile-title">Ingresos</div><div className="tile-desc">Registrar y ver income</div></div>
+            <div className="tile-text"><div className="tile-title">Ingresos</div><div className="tile-desc">Registrar y ver ingresos</div></div>
           </button>
           <button className="menu-tile primary-tile vertical" onClick={() => setScreen("fundMovement")}>
             <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
-            <div className="tile-text"><div className="tile-title">Movimientos de fondos</div><div className="tile-desc">Registrar y ver income</div></div>
+            <div className="tile-text"><div className="tile-title">Movimientos de fondos</div><div className="tile-desc">Ver movimientos de fondos</div></div>
           </button>
         </div>
       </div>
