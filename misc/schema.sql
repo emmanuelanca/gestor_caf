@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS compromiso;
 DROP TABLE IF EXISTS ingreso;
 DROP TABLE IF EXISTS socio;
 DROP TABLE IF EXISTS comprobante;
+DROP TABLE IF EXISTS comprobante_item;
 DROP TABLE IF EXISTS proveedor;
 DROP TABLE IF EXISTS liga;
 DROP TABLE IF EXISTS dependencia;
@@ -134,6 +135,25 @@ CREATE TABLE comprobante (
     fecha_vencimiento DATE NOT NULL,
     proveedor_id INT NOT NULL,
     CONSTRAINT fk_comprobante_proveedor_id FOREIGN KEY (proveedor_id) REFERENCES proveedor(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE comprobante_item (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    comprobante_id INT NOT NULL,
+    monto_unidad DECIMAL(10,2) NOT NULL,
+    cantidad INT NOT NULL,
+    puc_id INT NOT NULL,
+    producto_id INT NOT NULL,
+    insumo_id INT NOT NULL,
+    personal_deportivo_id INT NOT NULL,
+    servicio_id INT NOT NULL,
+    servicio_legal_id INT NOT NULL,
+    CONSTRAINT fk_comprobante_item_puc_id FOREIGN KEY (comprobante_id) REFERENCES comprobante(id),
+    CONSTRAINT fk_comprobante_item_producto_id FOREIGN KEY (producto_id) REFERENCES producto(id),
+    CONSTRAINT fk_comprobante_item_insumo_id FOREIGN KEY (insumo_id) REFERENCES insumo(id),
+    CONSTRAINT fk_comprobante_item_personal_deportivo_id FOREIGN KEY (personal_deportivo_id) REFERENCES personal_deportivo(id),
+    CONSTRAINT fk_comprobante_item_servicio_id FOREIGN KEY (servicio_id) REFERENCES servicio(id),
+    CONSTRAINT fk_comprobante_item_servicio_legal_id FOREIGN KEY (servicio_legal_id) REFERENCES servicio_legal(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE socio (
