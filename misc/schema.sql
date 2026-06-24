@@ -143,11 +143,11 @@ CREATE TABLE comprobante_item (
     monto_unidad DECIMAL(10,2) NOT NULL,
     cantidad INT NOT NULL,
     puc_id INT NOT NULL,
-    producto_id INT NOT NULL,
-    insumo_id INT NOT NULL,
-    personal_deportivo_id INT NOT NULL,
-    servicio_id INT NOT NULL,
-    servicio_legal_id INT NOT NULL,
+    producto_id INT,
+    insumo_id INT,
+    personal_deportivo_id INT,
+    servicio_id INT,
+    servicio_legal_id INT,
     CONSTRAINT fk_comprobante_item_puc_id FOREIGN KEY (comprobante_id) REFERENCES comprobante(id),
     CONSTRAINT fk_comprobante_item_producto_id FOREIGN KEY (producto_id) REFERENCES producto(id),
     CONSTRAINT fk_comprobante_item_insumo_id FOREIGN KEY (insumo_id) REFERENCES insumo(id),
@@ -310,3 +310,17 @@ WHERE c.id NOT IN (
     FROM movimiento mf 
     WHERE mf.compromiso_id IS NOT NULL
 );
+
+CREATE VIEW compromiso_resumen AS
+SELECT
+  c.id AS comprobante_id,
+  c.numero AS comprobante_numero,
+  c.fecha_emision AS fecha_devengamiento,
+  c.fecha_vencimiento as fecha_vencimiento,
+  (
+    SELECT SUM(ci.monto_unidad * ci.cantidad)
+    FROM compromiso_item ci
+    WHERE ci.comprobante_id = c.id
+  ) AS monto_total
+FROM comprobante c;
+
