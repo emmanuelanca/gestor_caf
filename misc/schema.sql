@@ -7,7 +7,6 @@ DROP TABLE IF EXISTS cuentas_fondos;
 DROP TABLE IF EXISTS dependencias;
 DROP TABLE IF EXISTS entradas;
 DROP TABLE IF EXISTS eventos;
-DROP TABLE IF EXISTS fechas;
 DROP TABLE IF EXISTS honorarios;
 DROP TABLE IF EXISTS ingresos;
 DROP TABLE IF EXISTS insumos;
@@ -15,7 +14,7 @@ DROP TABLE IF EXISTS ligas;
 DROP TABLE IF EXISTS movimientos_fondos;
 DROP TABLE IF EXISTS personal_deportivo;
 DROP TABLE IF EXISTS productos;
-DROP TABLE IF EXISTS proveedores
+DROP TABLE IF EXISTS proveedores;
 DROP TABLE IF EXISTS puc;
 DROP TABLE IF EXISTS servicios;
 DROP TABLE IF EXISTS servicios_legales;
@@ -104,19 +103,6 @@ CREATE TABLE afectacion_ingresos (
     destino VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB;
 
-CREATE TABLE fechas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    fecha DATE NOT NULL,
-    anio INT UNSIGNED NOT NULL,
-    mes TINYINT NOT NULL,
-    mes_nombre VARCHAR(20) NOT NULL,
-    dia TINYINT NOT NULL,
-    dia_semana TINYINT NOT NULL,
-    dia_nombre VARCHAR(20) NOT NULL,
-    trimestre TINYINT NOT NULL,
-    anio_mes VARCHAR(7) NOT NULL
-) ENGINE=InnoDB;
-
 CREATE TABLE cuentas_fondos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -161,17 +147,16 @@ CREATE TABLE socios (
 
 CREATE TABLE eventos (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    fecha INT NOT NULL,
+    fecha DATE NOT NULL,
     nombre VARCHAR(255) NOT NULL,
     tipo VARCHAR(50) NOT NULL,
     condicion VARCHAR(255),
-    observacion VARCHAR(255),
-    CONSTRAINT fk_eventos_fechas FOREIGN KEY (fecha) REFERENCES fechas(id)
+    observacion VARCHAR(255)
 ) ENGINE=InnoDB;
 
 CREATE TABLE ingresos (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    fecha INT NOT NULL,
+    fecha DATE NOT NULL,
     cuenta_fondos INT NOT NULL,
     monto DECIMAL(10,2) NOT NULL,
     socio INT,
@@ -179,7 +164,6 @@ CREATE TABLE ingresos (
     evento INT,
     entrada INT,
     producto INT,
-    CONSTRAINT fk_ingresos_fechas FOREIGN KEY (fecha) REFERENCES fechas(id),
     CONSTRAINT fk_ingresos_cuentas_fondos FOREIGN KEY (cuenta_fondos) REFERENCES cuentas_fondos(id),
     CONSTRAINT fk_ingresos_socios FOREIGN KEY (socio) REFERENCES socios(id),
     CONSTRAINT fk_ingresos_afectacion FOREIGN KEY (afectacion_ingreso) REFERENCES afectacion_ingresos(id),
@@ -191,8 +175,8 @@ CREATE TABLE ingresos (
 CREATE TABLE compromisos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     puc INT NOT NULL,
-    fecha_devengamiento INT NOT NULL,
-    fecha_vencimiento INT NOT NULL,
+    fecha_devengamiento DATE NOT NULL,
+    fecha_vencimiento DATE NOT NULL,
     monto DECIMAL(12,2) NOT NULL,
     comprobante INT,
     personal_deportivo INT,
@@ -205,8 +189,6 @@ CREATE TABLE compromisos (
     dependencia INT,
     liga INT,
     CONSTRAINT fk_compromisos_puc FOREIGN KEY (puc) REFERENCES puc(id),
-    CONSTRAINT fk_compromisos_f_devengamiento FOREIGN KEY (fecha_devengamiento) REFERENCES fechas(id),
-    CONSTRAINT fk_compromisos_f_vencimiento FOREIGN KEY (fecha_vencimiento) REFERENCES fechas(id),
     CONSTRAINT fk_compromisos_comprobante FOREIGN KEY (comprobante) REFERENCES comprobantes(id),
     CONSTRAINT fk_compromisos_p_deportivo FOREIGN KEY (personal_deportivo) REFERENCES personal_deportivo(id),
     CONSTRAINT fk_compromisos_evento FOREIGN KEY (evento) REFERENCES eventos(id),
@@ -221,13 +203,12 @@ CREATE TABLE compromisos (
 
 CREATE TABLE movimientos_fondos (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    fecha INT NOT NULL,
+    fecha DATE NOT NULL,
     cuenta_fondos INT NOT NULL,
     monto DECIMAL(10,2) NOT NULL,
     compromiso INT,
     ingreso INT,
     comprobante INT,
-    CONSTRAINT fk_movimientos_fechas FOREIGN KEY (fecha) REFERENCES fechas(id),
     CONSTRAINT fk_movimientos_cuentas FOREIGN KEY (cuenta_fondos) REFERENCES cuentas_fondos(id),
     CONSTRAINT fk_movimientos_compromiso FOREIGN KEY (compromiso) REFERENCES compromisos(id),
     CONSTRAINT fk_movimientos_ingreso FOREIGN KEY (ingreso) REFERENCES ingresos(id),
@@ -237,7 +218,7 @@ CREATE TABLE movimientos_fondos (
 CREATE VIEW ingresos_detallados AS
 SELECT
 	i.id,
-	f.fecha,
+	i.fecha,
 	cf.nombre AS cuenta_fondos,
 	i.monto,
 	s.apellido AS socio_apellido,
@@ -247,7 +228,6 @@ SELECT
 	e.nombre AS evento_nombre,
 	p.nombre AS producto_nombre
 FROM ingresos i
-INNER JOIN fechas f ON i.fecha = f.id
 INNER JOIN cuentas_fondos cf ON i.cuenta_fondos = cf.id
 LEFT JOIN socios s ON i.socio = s.id
 LEFT JOIN afectacion_ingresos ai ON i.afectacion_ingreso = ai.id
@@ -257,7 +237,7 @@ LEFT JOIN productos p ON i.producto = p.id;
 
 CREATE VIEW movimientos_fondos_detallados AS
 SELECT
-    f.fecha AS fecha,
+    mf.fecha,
     cf.nombre AS cuenta_fondos_nombre,
     mf.monto,
     mf.compromiso,
@@ -270,18 +250,16 @@ SELECT
         ELSE 1 
     END AS factor
 FROM movimientos_fondos mf
-INNER JOIN fechas f ON mf.fecha = f.id
 INNER JOIN cuentas_fondos cf ON mf.cuenta_fondos = cf.id
 LEFT JOIN compromisos c ON mf.compromiso = c.id
 LEFT JOIN comprobantes comp_compromiso ON c.comprobante = comp_compromiso.id
 LEFT JOIN comprobantes comp_mov ON mf.comprobante = comp_mov.id;
-DROP VIEW IF EXISTS compromisos_pendientes;
 
 CREATE VIEW compromisos_pendientes AS
 SELECT
     c.id,
-    f_dev.fecha AS fecha_devengamiento,
-    f_venc.fecha AS fecha_vencimiento,
+    c.fecha_devengamiento,
+    c.fecha_vencimiento,
     p.codigo AS puc_codigo,
     p.nombre AS puc_nombre,
     c.monto,
@@ -299,8 +277,6 @@ SELECT
         ELSE 'Otros'
     END AS origen_tipo
 FROM compromisos c
-INNER JOIN fechas f_dev ON c.fecha_devengamiento = f_dev.id
-INNER JOIN fechas f_venc ON c.fecha_vencimiento = f_venc.id
 INNER JOIN puc p ON c.puc = p.id
 LEFT JOIN comprobantes comp ON c.comprobante = comp.id
 WHERE c.id NOT IN (
@@ -319,9 +295,8 @@ CREATE TABLE comprobantes_cabecera (
     id INT AUTO_INCREMENT PRIMARY KEY,
     tipo VARCHAR(100) NOT NULL,
     numero VARCHAR(100) NOT NULL,
-    fecha INT NOT NULL,
+    fecha DATE NOT NULL,
     proveedor INT,
-    CONSTRAINT fk_comp_cabecera_fechas FOREIGN KEY (fecha) REFERENCES fechas(id),
     CONSTRAINT fk_comp_cabecera_proveedor FOREIGN KEY (proveedor) REFERENCES proveedores(id)
 ) ENGINE=InnoDB;
 
