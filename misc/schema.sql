@@ -121,7 +121,6 @@ CREATE TABLE puc (
     id INT AUTO_INCREMENT PRIMARY KEY,
     padre_id INT,
     subnivel INT UNSIGNED NOT NULL,
-    codigo VARCHAR(255) NOT NULL UNIQUE,
     nombre VARCHAR(255) NOT NULL,
     descripcion VARCHAR(255),
     CONSTRAINT fk_puc_padre_id FOREIGN KEY (padre_id) REFERENCES puc(id)
