@@ -320,7 +320,7 @@ SELECT
   c.fecha_vencimiento as fecha_vencimiento,
   (
     SELECT SUM(ci.monto_unidad * ci.cantidad)
-    FROM compromiso_item ci
+    FROM comprobante_item ci
     WHERE ci.comprobante_id = c.id
   ) AS monto_total
 FROM comprobante c;
