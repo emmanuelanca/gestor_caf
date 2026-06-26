@@ -1,3 +1,4 @@
+DROP VIEW IF EXISTS compromiso_resumen
 DROP VIEW IF EXISTS ingreso_display;
 DROP VIEW IF EXISTS movimiento_display;
 
