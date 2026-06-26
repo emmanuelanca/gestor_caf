@@ -158,6 +158,7 @@ CREATE TABLE comprobante_item (
     CONSTRAINT fk_comprobante_item_evento_id FOREIGN KEY (evento_id) REFERENCES evento(id),
     CONSTRAINT fk_comprobante_item_honorario_id FOREIGN KEY (honorario_id) REFERENCES honorario(id),
     CONSTRAINT fk_comprobante_item_insumo_id FOREIGN KEY (insumo_id) REFERENCES insumo(id),
+    CONSTRAINT fk_comprobante_item_liga_id FOREIGN KEY (liga_id) REFERENCES liga(id),
     CONSTRAINT fk_comprobante_item_personal_deportivo_id FOREIGN KEY (personal_deportivo_id) REFERENCES personal_deportivo(id),
     CONSTRAINT fk_comprobante_item_producto_id FOREIGN KEY (producto_id) REFERENCES producto(id),
     CONSTRAINT fk_comprobante_item_servicio_id FOREIGN KEY (servicio_id) REFERENCES servicio(id),
