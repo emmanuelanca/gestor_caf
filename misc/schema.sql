@@ -1,4 +1,3 @@
-DROP VIEW IF EXISTS compromiso_pendiente;
 DROP VIEW IF EXISTS ingreso_display;
 DROP VIEW IF EXISTS movimiento_display;
 
@@ -265,36 +264,6 @@ INNER JOIN cuenta_fondos cf ON mf.cuenta_fondos_id = cf.id
 LEFT JOIN compromiso c ON mf.compromiso_id = c.id
 LEFT JOIN comprobante comp_compromiso ON c.comprobante_id = comp_compromiso.id
 LEFT JOIN comprobante comp_mov ON mf.comprobante_id = comp_mov.id;
-
-CREATE VIEW compromiso_pendiente AS
-SELECT
-    c.id,
-    c.fecha_devengamiento,
-    c.fecha_vencimiento,
-    p.codigo AS puc_codigo,
-    p.nombre AS puc_nombre,
-    c.monto,
-    comp.numero AS comprobante_numero,
-    CASE 
-        WHEN c.personal_deportivo_id IS NOT NULL THEN 'Personal Deportivo'
-        WHEN c.evento_id             IS NOT NULL THEN 'Evento'
-        WHEN c.insumo_id             IS NOT NULL THEN 'Insumo'
-        WHEN c.producto_id           IS NOT NULL THEN 'Producto'
-        WHEN c.servicio_id           IS NOT NULL THEN 'Servicio'
-        WHEN c.servicio_legal_id     IS NOT NULL THEN 'Servicio Legal'
-        WHEN c.honorario_id          IS NOT NULL THEN 'Honorario'
-        WHEN c.dependencia_id        IS NOT NULL THEN 'Dependencia'
-        WHEN c.liga_id               IS NOT NULL THEN 'Liga'
-        ELSE 'Otros'
-    END AS origen_tipo
-FROM compromiso c
-INNER JOIN puc p ON c.puc_id = p.id
-LEFT JOIN comprobante comp ON c.comprobante_id = comp.id
-WHERE c.id NOT IN (
-    SELECT mf.compromiso_id 
-    FROM movimiento mf 
-    WHERE mf.compromiso_id IS NOT NULL
-);
 
 CREATE VIEW compromiso_resumen AS
 SELECT
