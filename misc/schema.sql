@@ -140,19 +140,26 @@ CREATE TABLE comprobante (
 CREATE TABLE comprobante_item (
     id INT AUTO_INCREMENT PRIMARY KEY,
     comprobante_id INT NOT NULL,
+    puc_id INT NOT NULL,
     monto_unidad DECIMAL(10,2) NOT NULL,
     cantidad INT NOT NULL,
-    puc_id INT NOT NULL,
-    producto_id INT,
+    dependencia_id INT,
+    evento_id INT,
+    honorario_id INT,
     insumo_id INT,
+    liga_id INT,
     personal_deportivo_id INT,
+    producto_id INT,
     servicio_id INT,
     servicio_legal_id INT,
     CONSTRAINT fk_comprobante_item_comprobante FOREIGN KEY (comprobante_id) REFERENCES comprobante(id) ON DELETE CASCADE,
     CONSTRAINT fk_comprobante_item_puc_id FOREIGN KEY (puc_id) REFERENCES puc(id),
-    CONSTRAINT fk_comprobante_item_producto_id FOREIGN KEY (producto_id) REFERENCES producto(id),
+    CONSTRAINT fk_comprobante_item_dependencia_id FOREIGN KEY (dependencia_id) REFERENCES dependencia(id),
+    CONSTRAINT fk_comprobante_item_evento_id FOREIGN KEY (evento_id) REFERENCES evento(id),
+    CONSTRAINT fk_comprobante_item_honorario_id FOREIGN KEY (honorario_id) REFERENCES honorario(id),
     CONSTRAINT fk_comprobante_item_insumo_id FOREIGN KEY (insumo_id) REFERENCES insumo(id),
     CONSTRAINT fk_comprobante_item_personal_deportivo_id FOREIGN KEY (personal_deportivo_id) REFERENCES personal_deportivo(id),
+    CONSTRAINT fk_comprobante_item_producto_id FOREIGN KEY (producto_id) REFERENCES producto(id),
     CONSTRAINT fk_comprobante_item_servicio_id FOREIGN KEY (servicio_id) REFERENCES servicio(id),
     CONSTRAINT fk_comprobante_item_servicio_legal_id FOREIGN KEY (servicio_legal_id) REFERENCES servicio_legal(id)
 ) ENGINE=InnoDB;
@@ -201,31 +208,8 @@ CREATE TABLE ingreso (
 
 CREATE TABLE compromiso (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    puc_id INT NOT NULL,
-    fecha_devengamiento DATE NOT NULL,
-    fecha_vencimiento DATE NOT NULL,
-    monto DECIMAL(12,2) NOT NULL,
     comprobante_id INT,
-    personal_deportivo_id INT,
-    evento_id INT,
-    insumo_id INT,
-    producto_id INT,
-    servicio_id INT,
-    servicio_legal_id INT,
-    honorario_id INT,
-    dependencia_id INT,
-    liga_id INT,
-    CONSTRAINT fk_compromiso_puc_id FOREIGN KEY (puc_id) REFERENCES puc(id),
-    CONSTRAINT fk_compromiso_comprobante_id FOREIGN KEY (comprobante_id) REFERENCES comprobante(id),
-    CONSTRAINT fk_compromiso_personal_deportivo_id FOREIGN KEY (personal_deportivo_id) REFERENCES personal_deportivo(id),
-    CONSTRAINT fk_compromiso_evento_id FOREIGN KEY (evento_id) REFERENCES evento(id),
-    CONSTRAINT fk_compromiso_insumo_id FOREIGN KEY (insumo_id) REFERENCES insumo(id),
-    CONSTRAINT fk_compromiso_producto_id FOREIGN KEY (producto_id) REFERENCES producto(id),
-    CONSTRAINT fk_compromiso_servicio_id FOREIGN KEY (servicio_id) REFERENCES servicio(id),
-    CONSTRAINT fk_compromiso_servicio_legal_id FOREIGN KEY (servicio_legal_id) REFERENCES servicio_legal(id),
-    CONSTRAINT fk_compromiso_honorario_id FOREIGN KEY (honorario_id) REFERENCES honorario(id),
-    CONSTRAINT fk_compromiso_dependencia_id FOREIGN KEY (dependencia_id) REFERENCES dependencia(id),
-    CONSTRAINT fk_compromiso_liga_id FOREIGN KEY (liga_id) REFERENCES liga(id)
+    CONSTRAINT fk_compromiso_comprobante_id FOREIGN KEY (comprobante_id) REFERENCES comprobante(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE movimiento (
