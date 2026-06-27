@@ -313,30 +313,11 @@ LEFT JOIN servicio_legal srv_leg
     ON item.servicio_legal_id = srv_leg.id
 ORDER BY item.comprobante_id ASC, item.id ASC;
 
-CREATE OR REPLACE VIEW ingreso_resumen AS
-SELECT 
-    i.id AS ingreso_id,
-    i.comprobante_id AS comprobante_id,
-    comp.fecha_emision AS fecha,
-    cf.nombre AS cuenta_fondos_nombre,
-    COALESCE(items.monto_total, 0.00) AS monto
-FROM ingreso i
-INNER JOIN comprobante comp
-    ON i.comprobante_id = comp.id
-INNER JOIN cuenta_fondos cf 
-    ON i.cuenta_fondos_id = cf.id
-LEFT JOIN (
-    SELECT 
-        comprobante_id, 
-        SUM(monto_unidad * unidades) AS monto_total
-    FROM comprobante_item_ingreso
-    GROUP BY comprobante_id
-) items ON i.comprobante_id = items.comprobante_id;
-
 CREATE OR REPLACE VIEW ingreso_detallado AS
 SELECT 
     item.comprobante_id AS comprobante_id,
     item.id AS item_id,
+    item.puc_id AS puc_id,
     item.monto_unidad,
     item.unidades,
     (item.monto_unidad * item.unidades) AS subtotal,
@@ -362,15 +343,6 @@ LEFT JOIN producto prod
     ON item.producto_id = prod.id
 ORDER BY item.comprobante_id ASC, item.id ASC;
 
-CREATE OR REPLACE VIEW compromiso_pendiente AS
-SELECT *
-FROM compromiso_resumen cr
-WHERE NOT EXISTS (
-    SELECT 1 
-    FROM egreso e 
-    WHERE e.comprobante_compromiso_id = cr.comprobante_id
-);
-
 CREATE OR REPLACE VIEW egreso_detallado AS
 SELECT
     e.id AS egreso_id,
@@ -379,14 +351,13 @@ SELECT
     comp_egr.numero AS comprobante_egreso_numero,
     comp_egr.fecha_emision AS fecha_pago,
     cf.nombre AS cuenta_fondos_nombre,
-    
     item_egr.id AS item_egreso_id,
+    item_com.puc_id AS puc_id,
     p.nombre AS proveedor_nombre,
     p.cuit AS proveedor_cuit,
     item_com.monto_unidad,
     item_com.unidades,
     (item_com.monto_unidad * item_com.unidades) AS subtotal,
-    
     puc.nombre AS puc_cuenta,
     dep.nombre AS dependencia_nombre,
     ev.nombre AS evento_nombre,
@@ -402,7 +373,6 @@ INNER JOIN comprobante comp_egr
     ON e.comprobante_id = comp_egr.id
 INNER JOIN cuenta_fondos cf
     ON e.cuenta_fondos_id = cf.id
-
 LEFT JOIN comprobante_item_egreso item_egr
     ON comp_egr.id = item_egr.comprobante_id
 LEFT JOIN comprobante_item_compromiso item_com
@@ -433,6 +403,92 @@ LEFT JOIN servicio_legal srv_leg
     ON item_com.servicio_legal_id = srv_leg.id
 ORDER BY comp_egr.id ASC, item_egr.id ASC;
 
+CREATE OR REPLACE VIEW movimiento_detallado AS
+SELECT 
+    'ingreso' AS tipo_movimiento,
+    1 AS factor,
+    id.comprobante_id,
+    c_ing.numero AS comprobante_numero,
+    id.item_id,
+    id.puc_id,
+    id.monto_unidad,
+    id.unidades,
+    id.subtotal,
+    id.puc_cuenta,
+    id.afectacion_destino,
+    id.socio_apellido_nombre,
+    id.socio_dni,
+    id.evento_nombre,
+    id.entrada_descripcion,
+    id.producto_nombre,
+    NULL AS dependencia_nombre,
+    NULL AS honorario_concepto,
+    NULL AS insumo_nombre,
+    NULL AS liga_nombre,
+    NULL AS personal_deportivo_concepto,
+    NULL AS servicio_descripcion,
+    NULL AS servicio_legal_descripcion,
+    NULL AS proveedor_nombre,
+    NULL AS proveedor_cuit,
+    NULL AS cuenta_fondos_nombre,
+    NULL AS fecha_pago
+FROM ingreso_detallado id
+INNER JOIN comprobante c_ing 
+    ON id.comprobante_id = c_ing.id
+
+UNION ALL
+
+SELECT 
+    'egreso' AS tipo_movimiento,
+    -1 AS factor,
+    comprobante_egreso_id AS comprobante_id,
+    comprobante_egreso_numero AS comprobante_numero,
+    item_egreso_id AS item_id,
+    puc_id,
+    monto_unidad,
+    unidades,
+    subtotal,
+    puc_cuenta,
+    NULL AS afectacion_destino,
+    NULL AS socio_apellido_nombre,
+    NULL AS socio_dni,
+    evento_nombre,
+    NULL AS entrada_descripcion,
+    producto_nombre,
+    dependencia_nombre,
+    honorario_concepto,
+    insumo_nombre,
+    liga_nombre,
+    personal_deportivo_concepto,
+    servicio_descripcion,
+    servicio_legal_descripcion,
+    proveedor_nombre,
+    proveedor_cuit,
+    cuenta_fondos_nombre,
+    fecha_pago
+FROM egreso_detallado;
+
+CREATE OR REPLACE VIEW ingreso_resumen AS
+SELECT 
+    i.id AS ingreso_id,
+    i.comprobante_id AS comprobante_id,
+    comp.fecha_emision AS fecha,
+    cf.nombre AS cuenta_fondos_nombre,
+    COALESCE(items.monto_total, 0.00) AS monto
+FROM ingreso i
+INNER JOIN comprobante comp
+    ON i.comprobante_id = comp.id
+INNER JOIN cuenta_fondos cf 
+    ON i.cuenta_fondos_id = cf.id
+LEFT JOIN (
+    SELECT 
+        comprobante_id, 
+        SUM(monto_unidad * unidades) AS monto_total
+    FROM comprobante_item_ingreso
+    GROUP BY comprobante_id
+) items ON i.comprobante_id = items.comprobante_id;
+
+
 CREATE OR REPLACE VIEW egreso_resumen AS
 SELECT
     e.id AS egreso_id,
@@ -462,3 +518,78 @@ LEFT JOIN (
         ON item_egr.comprobante_item_compromiso_id = item_com.id
     GROUP BY item_egr.comprobante_id
 ) items ON comp_egr.id = items.comprobante_id;
+
+CREATE OR REPLACE VIEW compromiso_pendiente AS
+SELECT *
+FROM compromiso_resumen cr
+WHERE NOT EXISTS (
+    SELECT 1 
+    FROM egreso e 
+    WHERE e.comprobante_compromiso_id = cr.comprobante_id
+);
+
+-- puc_balance_directo es un paso intermedio para crear puc_balance_consolidado
+CREATE OR REPLACE VIEW puc_balance_directo AS
+SELECT 
+    p.id AS puc_id,
+    p.padre_id,
+    p.subnivel,
+    p.nombre AS puc_cuenta,
+    p.descripcion AS puc_descripcion,
+    COALESCE(SUM(m.factor * m.subtotal), 0.00) AS balance
+FROM puc p
+LEFT JOIN movimiento_detallado m 
+    ON p.id = m.puc_id
+GROUP BY 
+    p.id, 
+    p.padre_id, 
+    p.subnivel, 
+    p.nombre, 
+    p.descripcion;
+
+CREATE OR REPLACE VIEW puc_balance_consolidado AS
+WITH RECURSIVE puc_directo AS (
+    SELECT 
+        p.id AS puc_id,
+        p.padre_id,
+        p.subnivel,
+        p.nombre,
+        p.descripcion,
+        COALESCE(SUM(m.factor * m.subtotal), 0.00) AS balance_directo
+    FROM puc p
+    LEFT JOIN movimiento_detallado m ON p.id = m.puc_id
+    GROUP BY p.id, p.padre_id, p.subnivel, p.nombre, p.descripcion
+),
+puc_jerarquia AS (
+    SELECT 
+        id AS ancestor_id,
+        id AS puc_id
+    FROM puc
+    
+    UNION ALL
+    
+    SELECT 
+        p.padre_id AS ancestor_id,
+        h.puc_id
+    FROM puc_jerarquia h
+    INNER JOIN puc p ON h.ancestor_id = p.id
+    WHERE p.padre_id IS NOT NULL
+)
+SELECT 
+    d.puc_id,
+    d.padre_id,
+    d.subnivel,
+    d.nombre AS puc_cuenta,
+    d.descripcion AS puc_descripcion,
+    d.balance_directo,
+    COALESCE(SUM(orig.balance_directo), 0.00) AS balance_consolidado
+FROM puc_directo d
+LEFT JOIN puc_jerarquia j ON d.puc_id = j.ancestor_id
+LEFT JOIN puc_directo orig ON j.puc_id = orig.puc_id
+GROUP BY 
+    d.puc_id,
+    d.padre_id,
+    d.subnivel,
+    d.nombre,
+    d.descripcion,
+    d.balance_directo;
