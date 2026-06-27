@@ -370,3 +370,95 @@ WHERE NOT EXISTS (
     FROM egreso e 
     WHERE e.comprobante_compromiso_id = cr.comprobante_id
 );
+
+CREATE OR REPLACE VIEW egreso_detallado AS
+SELECT
+    e.id AS egreso_id,
+    comp_egr.id AS comprobante_egreso_id,
+    comp_egr.tipo AS comprobante_egreso_tipo,
+    comp_egr.numero AS comprobante_egreso_numero,
+    comp_egr.fecha_emision AS fecha_pago,
+    cf.nombre AS cuenta_fondos_nombre,
+    
+    item_egr.id AS item_egreso_id,
+    p.nombre AS proveedor_nombre,
+    p.cuit AS proveedor_cuit,
+    item_com.monto_unidad,
+    item_com.unidades,
+    (item_com.monto_unidad * item_com.unidades) AS subtotal,
+    
+    puc.nombre AS puc_cuenta,
+    dep.nombre AS dependencia_nombre,
+    ev.nombre AS evento_nombre,
+    hon.concepto AS honorario_concepto,
+    ins.nombre AS insumo_nombre,
+    liga.nombre AS liga_nombre,
+    per.concepto AS personal_deportivo_concepto,
+    prod.nombre AS producto_nombre,
+    srv.descripcion AS servicio_descripcion,
+    srv_leg.descripcion AS servicio_legal_descripcion
+FROM egreso e
+INNER JOIN comprobante comp_egr
+    ON e.comprobante_id = comp_egr.id
+INNER JOIN cuenta_fondos cf
+    ON e.cuenta_fondos_id = cf.id
+
+LEFT JOIN comprobante_item_egreso item_egr
+    ON comp_egr.id = item_egr.comprobante_id
+LEFT JOIN comprobante_item_compromiso item_com
+    ON item_egr.comprobante_item_compromiso_id = item_com.id
+LEFT JOIN comprobante comp_com
+    ON item_com.comprobante_id = comp_com.id
+LEFT JOIN proveedor p
+    ON comp_com.proveedor_id = p.id
+LEFT JOIN puc 
+    ON item_com.puc_id = puc.id
+LEFT JOIN dependencia dep 
+    ON item_com.dependencia_id = dep.id
+LEFT JOIN evento ev 
+    ON item_com.evento_id = ev.id
+LEFT JOIN honorario hon 
+    ON item_com.honorario_id = hon.id
+LEFT JOIN insumo ins 
+    ON item_com.insumo_id = ins.id
+LEFT JOIN liga 
+    ON item_com.liga_id = liga.id
+LEFT JOIN personal_deportivo per 
+    ON item_com.personal_deportivo_id = per.id
+LEFT JOIN producto prod 
+    ON item_com.producto_id = prod.id
+LEFT JOIN servicio srv 
+    ON item_com.servicio_id = srv.id
+LEFT JOIN servicio_legal srv_leg 
+    ON item_com.servicio_legal_id = srv_leg.id
+ORDER BY comp_egr.id ASC, item_egr.id ASC;
+
+CREATE OR REPLACE VIEW egreso_resumen AS
+SELECT
+    e.id AS egreso_id,
+    comp_egr.id AS comprobante_id,
+    comp_egr.tipo AS comprobante_tipo,
+    comp_egr.numero AS comprobante_numero,
+    comp_egr.fecha_emision AS fecha_pago,
+    cf.nombre AS cuenta_fondos_nombre,
+    p.nombre AS proveedor_nombre,
+    p.cuit AS proveedor_cuit,
+    COALESCE(items.monto_total, 0.00) AS monto
+FROM egreso e
+INNER JOIN comprobante comp_egr
+    ON e.comprobante_id = comp_egr.id
+INNER JOIN cuenta_fondos cf 
+    ON e.cuenta_fondos_id = cf.id
+LEFT JOIN comprobante comp_com
+    ON e.comprobante_compromiso_id = comp_com.id
+LEFT JOIN proveedor p
+    ON comp_com.proveedor_id = p.id
+LEFT JOIN (
+    SELECT 
+        item_egr.comprobante_id, 
+        SUM(item_com.monto_unidad * item_com.unidades) AS monto_total
+    FROM comprobante_item_egreso item_egr
+    INNER JOIN comprobante_item_compromiso item_com
+        ON item_egr.comprobante_item_compromiso_id = item_com.id
+    GROUP BY item_egr.comprobante_id
+) items ON comp_egr.id = items.comprobante_id;
