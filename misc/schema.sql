@@ -1,7 +1,3 @@
-DROP VIEW IF EXISTS compromiso_resumen;
-DROP VIEW IF EXISTS ingreso_display;
-DROP VIEW IF EXISTS movimiento_display;
-
 DROP TABLE IF EXISTS movimiento;
 DROP TABLE IF EXISTS compromiso;
 DROP TABLE IF EXISTS ingreso;
@@ -227,57 +223,4 @@ CREATE TABLE movimiento (
     CONSTRAINT fk_movimiento_ingreso_id FOREIGN KEY (ingreso_id) REFERENCES ingreso(id),
     CONSTRAINT fk_movimiento_comprobante_id FOREIGN KEY (comprobante_id) REFERENCES comprobante(id)
 ) ENGINE=InnoDB;
-
-CREATE VIEW ingreso_display AS
-SELECT
-    i.id,
-    i.fecha,
-    cf.nombre AS cuenta_fondos,
-    i.monto,
-    s.apellido AS socio_apellido,
-    s.nombre AS socio_nombre,
-    ai.destino AS afectacion,
-    ee.categoria AS entrada_categoria,
-    e.nombre AS evento_nombre,
-    p.nombre AS producto_nombre
-FROM ingreso i
-INNER JOIN cuenta_fondos cf ON i.cuenta_fondos_id = cf.id
-LEFT JOIN socio s ON i.socio_id = s.id
-LEFT JOIN afectacion ai ON i.afectacion_id = ai.id
-LEFT JOIN entrada ee ON i.entrada_id = ee.id
-LEFT JOIN evento e ON i.evento_id = e.id
-LEFT JOIN producto p ON i.producto_id = p.id;
-
-CREATE VIEW movimiento_display AS
-SELECT
-    mf.fecha,
-    cf.nombre AS cuenta_fondos_nombre,
-    mf.monto,
-    mf.compromiso_id,
-    mf.ingreso_id,
-    comp_mov.numero AS comprobante_numero,
-    comp_compromiso.numero AS comprobante_referencia_numero,
-    CASE 
-        WHEN mf.compromiso_id IS NOT NULL THEN -1
-        WHEN mf.ingreso_id IS NOT NULL THEN 1
-        ELSE 1 
-    END AS factor
-FROM movimiento mf
-INNER JOIN cuenta_fondos cf ON mf.cuenta_fondos_id = cf.id
-LEFT JOIN compromiso c ON mf.compromiso_id = c.id
-LEFT JOIN comprobante comp_compromiso ON c.comprobante_id = comp_compromiso.id
-LEFT JOIN comprobante comp_mov ON mf.comprobante_id = comp_mov.id;
-
-CREATE VIEW compromiso_resumen AS
-SELECT
-  c.id AS comprobante_id,
-  c.numero AS comprobante_numero,
-  c.fecha_emision AS fecha_devengamiento,
-  c.fecha_vencimiento as fecha_vencimiento,
-  (
-    SELECT SUM(ci.monto_unidad * ci.cantidad)
-    FROM comprobante_item ci
-    WHERE ci.comprobante_id = c.id
-  ) AS monto_total
-FROM comprobante c;
 
