@@ -15,7 +15,6 @@ DROP TABLE IF EXISTS honorario;
 DROP TABLE IF EXISTS ingreso;
 DROP TABLE IF EXISTS insumo;
 DROP TABLE IF EXISTS liga;
-DROP TABLE IF EXISTS movimiento;
 DROP TABLE IF EXISTS personal_deportivo;
 DROP TABLE IF EXISTS producto;
 DROP TABLE IF EXISTS proveedor;
@@ -242,14 +241,6 @@ CREATE TABLE egreso (
     cuenta_fondos_id INT NOT NULL,
     CONSTRAINT fk_egreso_comprobante FOREIGN KEY (comprobante_id) REFERENCES comprobante (id) ON DELETE CASCADE,
     CONSTRAINT fk_egreso_cuenta_fondos FOREIGN KEY (cuenta_fondos_id) REFERENCES cuenta_fondos (id)
-) ENGINE=InnoDB;
-
-CREATE TABLE movimiento (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    ingreso_id INT,
-    egreso_id INT,
-    CONSTRAINT fk_movimiento_egreso FOREIGN KEY (egreso_id) REFERENCES egreso (id),
-    CONSTRAINT fk_movimiento_ingreso FOREIGN KEY (ingreso_id) REFERENCES ingreso(id)
 ) ENGINE=InnoDB;
 
 CREATE OR REPLACE VIEW compromiso_resumen AS
