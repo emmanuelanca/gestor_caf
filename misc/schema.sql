@@ -237,8 +237,10 @@ CREATE TABLE compromiso (
 CREATE TABLE egreso (
     id INT AUTO_INCREMENT PRIMARY KEY,
     comprobante_id INT NOT NULL,
+    comprobante_compromiso_id INT NOT NULL,
     cuenta_fondos_id INT NOT NULL,
     CONSTRAINT fk_egreso_comprobante FOREIGN KEY (comprobante_id) REFERENCES comprobante (id) ON DELETE CASCADE,
+    CONSTRAINT fk_egreso_comprobante_compromiso FOREIGN KEY (comprobante_compromiso_id) REFERENCES comprobante (id) ON DELETE CASCADE,
     CONSTRAINT fk_egreso_cuenta_fondos FOREIGN KEY (cuenta_fondos_id) REFERENCES cuenta_fondos (id)
 ) ENGINE=InnoDB;
 
@@ -359,3 +361,12 @@ LEFT JOIN entrada ent
 LEFT JOIN producto prod 
     ON item.producto_id = prod.id
 ORDER BY item.comprobante_id ASC, item.id ASC;
+
+CREATE OR REPLACE VIEW compromiso_pendiente AS
+SELECT *
+FROM compromiso_resumen cr
+WHERE NOT EXISTS (
+    SELECT 1 
+    FROM egreso e 
+    WHERE e.comprobante_compromiso_id = cr.comprobante_id
+);
