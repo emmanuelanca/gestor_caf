@@ -30,6 +30,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE liga (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL
+
 ) ENGINE=InnoDB;
 
 CREATE TABLE dependencia (
@@ -158,8 +159,8 @@ CREATE TABLE comprobante (
     tipo VARCHAR(255) NOT NULL,
     numero VARCHAR(255) NOT NULL,
     fecha_emision DATE NOT NULL,
-    fecha_vencimiento DATE NOT NULL,
-    proveedor_id INT NOT NULL,
+    fecha_vencimiento DATE,
+    proveedor_id INT,
     CONSTRAINT fk_comprobante_proveedor FOREIGN KEY (proveedor_id) REFERENCES proveedor(id)
 ) ENGINE=InnoDB;
 
@@ -318,4 +319,53 @@ LEFT JOIN servicio srv
     ON item.servicio_id = srv.id
 LEFT JOIN servicio_legal srv_leg 
     ON item.servicio_legal_id = srv_leg.id
+ORDER BY item.comprobante_id ASC, item.id ASC;
+
+CREATE OR REPLACE VIEW ingreso_resumen AS
+SELECT 
+    i.id AS ingreso_id,
+    i.comprobante_id AS comprobante_id,
+    comp.fecha_emision AS fecha,
+    cf.nombre AS cuenta_fondos_nombre,
+    COALESCE(items.monto_total, 0.00) AS monto
+FROM ingreso i
+INNER JOIN comprobante comp
+    ON i.comprobante_id = comp.id
+INNER JOIN cuenta_fondos cf 
+    ON i.cuenta_fondos_id = cf.id
+LEFT JOIN (
+    SELECT 
+        comprobante_id, 
+        SUM(monto_unidad * unidades) AS monto_total
+    FROM comprobante_item_ingreso
+    GROUP BY comprobante_id
+) items ON i.comprobante_id = items.comprobante_id;
+
+CREATE OR REPLACE VIEW ingreso_detallado AS
+SELECT 
+    item.comprobante_id AS comprobante_id,
+    item.id AS item_id,
+    item.monto_unidad,
+    item.unidades,
+    (item.monto_unidad * item.unidades) AS subtotal,
+    puc.nombre AS puc_cuenta,
+    afec.destino AS afectacion_destino,
+    CONCAT(s.apellido, ', ', s.nombre) AS socio_apellido_nombre,
+    s.dni AS socio_dni,
+    ev.nombre AS evento_nombre,
+    ent.descripcion AS entrada_descripcion,
+    prod.nombre AS producto_nombre
+FROM comprobante_item_ingreso item
+INNER JOIN puc 
+    ON item.puc_id = puc.id
+LEFT JOIN afectacion afec 
+    ON item.afectacion_id = afec.id
+LEFT JOIN socio s 
+    ON item.socio_id = s.id
+LEFT JOIN evento ev 
+    ON item.evento_id = ev.id
+LEFT JOIN entrada ent 
+    ON item.entrada_id = ent.id
+LEFT JOIN producto prod 
+    ON item.producto_id = prod.id
 ORDER BY item.comprobante_id ASC, item.id ASC;
