@@ -123,7 +123,7 @@ CREATE TABLE puc (
     subnivel INT UNSIGNED NOT NULL,
     nombre VARCHAR(255) NOT NULL,
     descripcion VARCHAR(255),
-    CONSTRAINT fk_puc_padre_id FOREIGN KEY (padre_id) REFERENCES puc(id)
+    CONSTRAINT fk_puc_padre FOREIGN KEY (padre_id) REFERENCES puc(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE comprobante (
@@ -134,8 +134,8 @@ CREATE TABLE comprobante (
     fecha_emision DATE NOT NULL,
     fecha_vencimiento DATE NOT NULL,
     proveedor_id INT NOT NULL,
-    CONSTRAINT fk_comprobante_proveedor_id FOREIGN KEY (proveedor_id) REFERENCES proveedor(id),
-    CONSTRAINT fk_comprobante_comprobante_referencia_id FOREIGN KEY (comprobante_referencia_id) REFERENCES comprobante(id)
+    CONSTRAINT fk_comprobante_proveedor FOREIGN KEY (proveedor_id) REFERENCES proveedor(id),
+    CONSTRAINT fk_comprobante_comprobante_referencia FOREIGN KEY (comprobante_referencia_id) REFERENCES comprobante(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE comprobante_item (
@@ -154,16 +154,16 @@ CREATE TABLE comprobante_item (
     servicio_id INT,
     servicio_legal_id INT,
     CONSTRAINT fk_comprobante_item_comprobante FOREIGN KEY (comprobante_id) REFERENCES comprobante(id) ON DELETE CASCADE,
-    CONSTRAINT fk_comprobante_item_puc_id FOREIGN KEY (puc_id) REFERENCES puc(id),
-    CONSTRAINT fk_comprobante_item_dependencia_id FOREIGN KEY (dependencia_id) REFERENCES dependencia(id),
-    CONSTRAINT fk_comprobante_item_evento_id FOREIGN KEY (evento_id) REFERENCES evento(id),
-    CONSTRAINT fk_comprobante_item_honorario_id FOREIGN KEY (honorario_id) REFERENCES honorario(id),
-    CONSTRAINT fk_comprobante_item_insumo_id FOREIGN KEY (insumo_id) REFERENCES insumo(id),
-    CONSTRAINT fk_comprobante_item_liga_id FOREIGN KEY (liga_id) REFERENCES liga(id),
-    CONSTRAINT fk_comprobante_item_personal_deportivo_id FOREIGN KEY (personal_deportivo_id) REFERENCES personal_deportivo(id),
-    CONSTRAINT fk_comprobante_item_producto_id FOREIGN KEY (producto_id) REFERENCES producto(id),
-    CONSTRAINT fk_comprobante_item_servicio_id FOREIGN KEY (servicio_id) REFERENCES servicio(id),
-    CONSTRAINT fk_comprobante_item_servicio_legal_id FOREIGN KEY (servicio_legal_id) REFERENCES servicio_legal(id)
+    CONSTRAINT fk_comprobante_item_puc FOREIGN KEY (puc_id) REFERENCES puc(id),
+    CONSTRAINT fk_comprobante_item_dependencia FOREIGN KEY (dependencia_id) REFERENCES dependencia(id),
+    CONSTRAINT fk_comprobante_item_evento FOREIGN KEY (evento_id) REFERENCES evento(id),
+    CONSTRAINT fk_comprobante_item_honorario FOREIGN KEY (honorario_id) REFERENCES honorario(id),
+    CONSTRAINT fk_comprobante_item_insumo FOREIGN KEY (insumo_id) REFERENCES insumo(id),
+    CONSTRAINT fk_comprobante_item_liga FOREIGN KEY (liga_id) REFERENCES liga(id),
+    CONSTRAINT fk_comprobante_item_personal_deportivo FOREIGN KEY (personal_deportivo_id) REFERENCES personal_deportivo(id),
+    CONSTRAINT fk_comprobante_item_producto FOREIGN KEY (producto_id) REFERENCES producto(id),
+    CONSTRAINT fk_comprobante_item_servicio FOREIGN KEY (servicio_id) REFERENCES servicio(id),
+    CONSTRAINT fk_comprobante_item_servicio_legal FOREIGN KEY (servicio_legal_id) REFERENCES servicio_legal(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE socio (
@@ -187,7 +187,7 @@ CREATE TABLE socio (
     altura VARCHAR(255),
     dom_cobro VARCHAR(255),
     numero_sorteo VARCHAR(255),
-    CONSTRAINT fk_socio_categoria_id FOREIGN KEY (categoria_id) REFERENCES socio_categoria(id)
+    CONSTRAINT fk_socio_categoria FOREIGN KEY (categoria_id) REFERENCES socio_categoria(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE ingreso (
@@ -200,18 +200,18 @@ CREATE TABLE ingreso (
     evento_id INT,
     entrada_id INT,
     producto_id INT,
-    CONSTRAINT fk_ingreso_cuenta_fondos_id FOREIGN KEY (cuenta_fondos_id) REFERENCES cuenta_fondos(id),
-    CONSTRAINT fk_ingreso_socio_id FOREIGN KEY (socio_id) REFERENCES socio(id),
-    CONSTRAINT fk_ingreso_afectacion_id FOREIGN KEY (afectacion_id) REFERENCES afectacion(id),
-    CONSTRAINT fk_ingreso_evento_id FOREIGN KEY (evento_id) REFERENCES evento(id),
-    CONSTRAINT fk_ingreso_entrada_id FOREIGN KEY (entrada_id) REFERENCES entrada(id),
-    CONSTRAINT fk_ingreso_producto_id FOREIGN KEY (producto_id) REFERENCES producto(id)
+    CONSTRAINT fk_ingreso_cuenta_fondos FOREIGN KEY (cuenta_fondos_id) REFERENCES cuenta_fondos(id),
+    CONSTRAINT fk_ingreso_socio FOREIGN KEY (socio_id) REFERENCES socio(id),
+    CONSTRAINT fk_ingreso_afectacion FOREIGN KEY (afectacion_id) REFERENCES afectacion(id),
+    CONSTRAINT fk_ingreso_evento FOREIGN KEY (evento_id) REFERENCES evento(id),
+    CONSTRAINT fk_ingreso_entrada FOREIGN KEY (entrada_id) REFERENCES entrada(id),
+    CONSTRAINT fk_ingreso_producto FOREIGN KEY (producto_id) REFERENCES producto(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE compromiso (
     id INT AUTO_INCREMENT PRIMARY KEY,
     comprobante_id INT,
-    CONSTRAINT fk_compromiso_comprobante_id FOREIGN KEY (comprobante_id) REFERENCES comprobante(id)
+    CONSTRAINT fk_compromiso_comprobante FOREIGN KEY (comprobante_id) REFERENCES comprobante(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE movimiento (
