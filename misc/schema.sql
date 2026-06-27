@@ -250,3 +250,72 @@ CREATE TABLE movimiento (
     CONSTRAINT fk_movimiento_egreso FOREIGN KEY (egreso_id) REFERENCES egreso (id),
     CONSTRAINT fk_movimiento_ingreso FOREIGN KEY (ingreso_id) REFERENCES ingreso(id)
 ) ENGINE=InnoDB;
+
+CREATE OR REPLACE VIEW compromiso_resumen AS
+SELECT
+    c.id AS compromiso_id,
+    c.fecha_devengamiento,
+    comp.id AS comprobante_id,
+    comp.tipo AS comprobante_tipo,
+    comp.numero AS comprobante_numero,
+    comp.fecha_vencimiento,
+    p.nombre AS proveedor_nombre,
+    p.cuit AS proveedor_cuit,
+    COALESCE(items.monto_total, 0.00) AS monto
+FROM compromiso c
+INNER JOIN comprobante comp
+    ON c.comprobante_id = comp.id
+INNER JOIN proveedor p
+    ON comp.proveedor_id = p.id
+LEFT JOIN (
+    SELECT
+        comprobante_id,
+        SUM(monto_unidad * unidades) AS monto_total
+    FROM comprobante_item_compromiso
+    GROUP BY comprobante_id
+) items ON comp.id = items.comprobante_id;
+
+CREATE OR REPLACE VIEW compromiso_detallado AS
+SELECT
+    item.comprobante_id AS comprobante_id,
+    item.id AS item_id,
+    p.cuit AS comprobante_cuit,
+    item.monto_unidad,
+    item.unidades,
+    (item.monto_unidad * item.unidades) AS subtotal,
+    puc.nombre AS puc_cuenta,
+    dep.nombre AS dependencia_nombre,
+    ev.nombre AS evento_nombre,
+    hon.concepto AS honorario_concepto,
+    ins.nombre AS insumo_nombre,
+    liga.nombre AS liga_nombre,
+    per.concepto AS personal_deportivo_concepto,
+    prod.nombre AS producto_nombre,
+    srv.descripcion AS servicio_descripcion,
+    srv_leg.descripcion AS servicio_legal_descripcion
+FROM comprobante_item_compromiso item
+INNER JOIN comprobante comp
+    ON item.comprobante_id = comp.id
+INNER JOIN proveedor p
+    ON comp.proveedor_id = p.id
+INNER JOIN puc 
+    ON item.puc_id = puc.id
+LEFT JOIN dependencia dep 
+    ON item.dependencia_id = dep.id
+LEFT JOIN evento ev 
+    ON item.evento_id = ev.id
+LEFT JOIN honorario hon 
+    ON item.honorario_id = hon.id
+LEFT JOIN insumo ins 
+    ON item.insumo_id = ins.id
+LEFT JOIN liga 
+    ON item.liga_id = liga.id
+LEFT JOIN personal_deportivo per 
+    ON item.personal_deportivo_id = per.id
+LEFT JOIN producto prod 
+    ON item.producto_id = prod.id
+LEFT JOIN servicio srv 
+    ON item.servicio_id = srv.id
+LEFT JOIN servicio_legal srv_leg 
+    ON item.servicio_legal_id = srv_leg.id
+ORDER BY item.comprobante_id ASC, item.id ASC;
