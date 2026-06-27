@@ -129,11 +129,13 @@ CREATE TABLE puc (
 CREATE TABLE comprobante (
     id INT AUTO_INCREMENT PRIMARY KEY,
     tipo VARCHAR(255) NOT NULL,
+    comprobante_referencia_id INT,
     numero VARCHAR(255) NOT NULL,
     fecha_emision DATE NOT NULL,
     fecha_vencimiento DATE NOT NULL,
     proveedor_id INT NOT NULL,
-    CONSTRAINT fk_comprobante_proveedor_id FOREIGN KEY (proveedor_id) REFERENCES proveedor(id)
+    CONSTRAINT fk_comprobante_proveedor_id FOREIGN KEY (proveedor_id) REFERENCES proveedor(id),
+    CONSTRAINT fk_comprobante_comprobante_referencia_id FOREIGN KEY (comprobante_referencia_id) REFERENCES comprobante(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE comprobante_item (
