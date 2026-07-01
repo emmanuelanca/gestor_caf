@@ -10,6 +10,8 @@ import { usePendingCommitment } from './hooks/usePendingCommitment';
 import PendingCommitmentPanel from './components/PendingCommitmentPanel';
 import { useVoucherHead } from './hooks/useVoucherHead';
 import CreateVoucherHeadPanel from './components/CreateVoucherHeadPanel';
+import { usePuc } from './hooks/usePuc';
+import PUCPanel from './components/PUCPanel';
 
 export default function App() {
   const [screen, setScreen] = useState('menu');
@@ -17,6 +19,7 @@ export default function App() {
   const fundMovementData = useFundMovement();
   const pendingCommitmentData = usePendingCommitment();
   const voucherHeadData = useVoucherHead();
+  const pucData = usePuc();
 
   if (screen === "menu") {
     return (
@@ -42,6 +45,10 @@ export default function App() {
           <button className="menu-tile primary-tile vertical" onClick={() => setScreen("pendingCommitment")}>
             <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
             <div className="tile-text"><div className="tile-title">Compromisos pendientes</div><div className="tile-desc">Ver y pagar compromisos pendientes</div></div>
+          </button>
+          <button className="menu-tile primary-tile vertical" onClick={() => setScreen("puc")}>
+            <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
+            <div className="tile-text"><div className="tile-title">Plan de Cuentas</div><div className="tile-desc">Ver y gestionar PUC</div></div>
           </button>
           <button className="menu-tile primary-tile vertical" onClick={() => setScreen("createVoucherHead")}>
             <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
@@ -123,6 +130,25 @@ export default function App() {
 
         <div className="vista-content">
           <CreateVoucherHeadPanel voucherHeadData={voucherHeadData} />
+        </div>
+      </div>
+    );
+  }
+
+  if (screen === "puc") {
+    return (
+      <div className="vista-window">
+        <div className="vista-titlebar">
+          <div className="title-left">
+            <button className="vista-button back-button" onClick={() => setScreen("menu")}>←</button>
+          <div className="club-title">Plan de Cuentas (PUC)</div>
+          </div>
+          <div className="title-right">
+          </div>
+        </div>
+  
+        <div className="vista-content">
+          <PUCPanel pucData={pucData} />
         </div>
       </div>
     );

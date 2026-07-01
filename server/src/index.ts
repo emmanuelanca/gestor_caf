@@ -1,7 +1,12 @@
+
 import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import * as db from './db';
+// Solución para la serialización de BigInt a JSON
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -9,9 +14,11 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// INGRESOS
+
 app.get('/api/income', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM ingresos_detallados ORDER BY fecha DESC');
+    const result = await db.sqlQuery('SELECT * FROM ingreso_resumen ORDER BY fecha DESC');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -21,7 +28,7 @@ app.get('/api/income', async (req, res) => {
 
 app.post('/api/income', async (req, res) => {
   try {
-    const income = await db.rowCreate('ingresos', {
+    const income = await db.rowCreate('ingreso', {
       'fecha': req.body.date ? await db.calendarDateToId(req.body.date) : null,
       'cuenta_fondos': req.body.fundAccount ? parseFloat(req.body.fundAccount) : null,
       'monto': req.body.amount ? parseFloat(req.body.amount) : null,
@@ -50,7 +57,7 @@ app.post('/api/income', async (req, res) => {
 app.delete('/api/income/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    await db.sqlQuery(`DELETE FROM ingresos WHERE id = ${id}`);
+    await db.sqlQuery(`DELETE FROM ingreso WHERE id = ${id}`);
     res.json({ success: true, message: 'An income was deleted successfully' });
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -60,7 +67,7 @@ app.delete('/api/income/:id', async (req, res) => {
 
 app.get('/api/commitment', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM compromisos_detallados');
+    const result = await db.sqlQuery('SELECT * FROM compromiso_detallado');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -70,7 +77,7 @@ app.get('/api/commitment', async (req, res) => {
 
 app.post('/api/commitment', async (req, res) => {
   try {
-    const result = await db.rowCreate('compromisos', {
+    const result = await db.rowCreate('compromiso', {
     });
 
     res.status(201).json({ success: true, data: result });
@@ -84,7 +91,7 @@ app.post('/api/commitment', async (req, res) => {
 app.delete('/api/commitment/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    await db.sqlQuery(`DELETE FROM compromisos WHERE id = ${id}`);
+    await db.sqlQuery(`DELETE FROM compromiso WHERE id = ${id}`);
     res.json({ success: true, message: 'An commitment was deleted successfully' });
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -94,7 +101,7 @@ app.delete('/api/commitment/:id', async (req, res) => {
 
 app.get('/api/member', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM socios');
+    const result = await db.sqlQuery('SELECT * FROM socio');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -104,7 +111,7 @@ app.get('/api/member', async (req, res) => {
 
 app.get('/api/fund-account', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM cuentas_fondos');
+    const result = await db.sqlQuery('SELECT * FROM cuenta_fondos');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -114,7 +121,7 @@ app.get('/api/fund-account', async (req, res) => {
 
 app.get('/api/allocation', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM afectacion_ingresos');
+    const result = await db.sqlQuery('SELECT * FROM afectacion');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -124,7 +131,7 @@ app.get('/api/allocation', async (req, res) => {
 
 app.get('/api/event', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM eventos');
+    const result = await db.sqlQuery('SELECT * FROM evento');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -134,7 +141,7 @@ app.get('/api/event', async (req, res) => {
 
 app.get('/api/ticket', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM entradas');
+    const result = await db.sqlQuery('SELECT * FROM entrada');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -144,7 +151,7 @@ app.get('/api/ticket', async (req, res) => {
 
 app.get('/api/product', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM productos');
+    const result = await db.sqlQuery('SELECT * FROM producto');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -154,7 +161,7 @@ app.get('/api/product', async (req, res) => {
 
 app.get('/api/fund-movement', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM movimientos_fondos_detallados ORDER BY fecha DESC');
+    const result = await db.sqlQuery('SELECT * FROM movimiento_detallado ORDER BY fecha_pago DESC');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -194,7 +201,7 @@ app.delete('/api/fund-movement/:id', async (req, res) => {
 
 app.get('/api/voucher', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM comprobantes');
+    const result = await db.sqlQuery('SELECT * FROM comprobante');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -204,7 +211,7 @@ app.get('/api/voucher', async (req, res) => {
 
 app.get('/api/pending-commitment', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM compromisos_pendientes ORDER BY fecha_vencimiento DESC');
+    const result = await db.sqlQuery('SELECT * FROM compromiso_pendiente ORDER BY fecha_vencimiento DESC');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -229,6 +236,7 @@ app.post('/api/pending-commitment', async (req, res) => {
   }
 });
 
+// COMPROBANTES CABECERA
 app.post('/api/voucher-head', async (req, res) => {
   try {
     await db.rowCreate('comprobantes_cabecera', {
@@ -248,7 +256,7 @@ app.post('/api/voucher-head', async (req, res) => {
 
 app.get('/api/provider', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM proveedores');
+    const result = await db.sqlQuery('SELECT * FROM proveedor');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -256,6 +264,61 @@ app.get('/api/provider', async (req, res) => {
   }
 });
 
+// PUC
+app.get('/api/puc-balance', async (req, res) => {
+  try {
+    const result = await db.sqlQuery('SELECT * FROM puc_balance_consolidado ORDER BY puc_id ASC');
+    res.json(result);
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/puc', async (req, res) => {
+  try {
+    const result = await db.sqlQuery('SELECT * FROM puc ORDER BY padre_id ASC, subnivel ASC');
+    res.json(result);
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/puc', async (req, res) => {
+  try {
+    const { padre_id, subnivel, nombre, descripcion } = req.body;
+
+    if (!nombre || nombre.trim() === '') {
+      return res.status(400).json({ error: 'El nombre del PUC es obligatorio' });
+    }
+
+    if (!subnivel || subnivel < 1) {
+      return res.status(400).json({ error: 'El subnivel debe ser mayor a 0' });
+    }
+
+    if (padre_id !== null && padre_id !== undefined && padre_id !== '') {
+      const padreExists = await db.sqlQuery(`SELECT id FROM puc WHERE id = ${parseInt(padre_id)}`);
+      if (!padreExists || padreExists.length === 0) {
+        return res.status(400).json({ error: 'El PUC padre no existe' });
+      }
+    }
+
+    const result = await db.rowCreate('puc', {
+      'padre_id': padre_id && padre_id !== '' ? parseInt(padre_id) : null,
+      'subnivel': parseInt(subnivel),
+      'nombre': nombre.trim(),
+      'descripcion': descripcion ? descripcion.trim() : null,
+    });
+
+    res.status(201).json({ success: true, id: result });
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// INICIAR SERVIDOR
 app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`Server running...`);
 });
