@@ -15,6 +15,30 @@ export default function PUCPanel({ pucData }) {
     }).format(num);
   };
 
+  const getBalanceIndicator = (balance) => {
+  const numBalance = parseFloat(balance);
+  
+  if (numBalance > 0) {
+    return (
+      <span style={{ color: '#27ae60', fontWeight: 'bold', marginRight: '8px' }}>
+        +
+      </span>
+    );
+  } else if (numBalance < 0) {
+    return (
+      <span style={{ color: '#e74c3c', fontWeight: 'bold', marginRight: '8px' }}>
+        −
+      </span>
+    );
+  } else {
+    return (
+      <span style={{ color: '#95a5a6', fontWeight: 'bold', marginRight: '8px' }}>
+        ±
+      </span>
+    );
+  }
+  };
+
   return (
     <div className="vista-panel">
       <form onSubmit={pucData.handleInsertPuc} className="row" style={{ marginBottom: 12 }}>
@@ -75,7 +99,8 @@ export default function PUCPanel({ pucData }) {
                 <td>{item.puc_descripcion || '-'}</td>
                 
                 <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
-                  {formatCurrency(item.balance_consolidado)}
+                  {getBalanceIndicator(item.balance_consolidado)}
+                  {formatCurrency(Math.abs(item.balance_consolidado))}
                 </td>
               </tr>
             ))}
