@@ -39,14 +39,14 @@ export function usePuc() {
         return;
       }
 
-      if (!newSubnivel || newSubnivel < 1) {
-        alert('El subnivel debe ser mayor a 0');
+      if (!newSubnivel.trim()) {
+        alert('El subnivel es obligatorio');
         return;
       }
 
       const valuesPuc = {
         padre_id: newPadreId ? parseInt(newPadreId) : null,
-        subnivel: parseInt(newSubnivel),
+        subnivel: newSubnivel.trim(),
         nombre: newNombre.trim(),
         descripcion: newDescripcion.trim() || null,
       };
@@ -83,7 +83,7 @@ export function usePuc() {
 
   const optionsPadre = allPuc.map((p) => ({
     value: p.id,
-    label: `${p.nombre} (Nivel ${p.subnivel})`,
+    label: `[${p.codigo || '-'}] ${p.nombre}`,
   }));
 
   return {

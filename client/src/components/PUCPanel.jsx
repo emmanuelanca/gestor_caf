@@ -1,8 +1,8 @@
 import Select from 'react-select';
 
 export default function PUCPanel({ pucData }) {
-  const getIndent = (subnivel) => {
-    return `${(subnivel - 1) * 20}px`;
+  const getIndent = (depth) => {
+    return `${(depth - 1) * 20}px`;
   };
 
   const formatBalance = (balance) => {
@@ -60,8 +60,7 @@ export default function PUCPanel({ pucData }) {
           placeholder="Subnivel"
           value={pucData.newSubnivel}
           onChange={(e) => pucData.setNewSubnivel(e.target.value)}
-          type="number"
-          min="1"
+          type="text"
         />
         <div className="vista-input">
           <Select
@@ -92,11 +91,13 @@ export default function PUCPanel({ pucData }) {
           <tbody>
             {pucData.pucBalance.map((item) => (
               <tr key={item.puc_id}>
-                <td style={{ paddingLeft: getIndent(item.subnivel) }}>
+                <td style={{ paddingLeft: getIndent(item.depth) }}>
+                  <span style={{ color: '#7f8c8d', marginRight: '8px', fontWeight: '500' }}>
+                    {item.codigo}
+                  </span>
                   <strong>{item.puc_cuenta}</strong>
                 </td>
                 <td>{item.puc_descripcion || '-'}</td>
-                
                 <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
                   {formatBalance(item.balance_consolidado)}
                 </td>

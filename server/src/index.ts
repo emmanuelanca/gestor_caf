@@ -267,7 +267,7 @@ app.get('/api/provider', async (req, res) => {
 
 app.get('/api/puc-balance', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM puc_balance_consolidado ORDER BY puc_id ASC');
+    const result = await db.sqlQuery('SELECT * FROM puc_balance_consolidado ORDER BY codigo ASC');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -277,7 +277,7 @@ app.get('/api/puc-balance', async (req, res) => {
 
 app.get('/api/puc', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM puc ORDER BY padre_id ASC, subnivel ASC');
+    const result = await db.sqlQuery('SELECT * FROM puc ORDER BY codigo ASC');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -293,8 +293,8 @@ app.post('/api/puc', async (req, res) => {
       return res.status(400).json({ error: 'PUC name is mandatory' });
     }
 
-    if (!subnivel || subnivel < 1) {
-      return res.status(400).json({ error: 'PUC sublevel must be greater than 0' });
+    if (!subnivel || subnivel.toString().trim() === '') {
+      return res.status(400).json({ error: 'PUC sublevel is mandatory' });
     }
 
     if (padre_id !== null && padre_id !== undefined && padre_id !== '') {
@@ -306,7 +306,7 @@ app.post('/api/puc', async (req, res) => {
 
     const result = await db.rowCreate('puc', {
       'padre_id': padre_id && padre_id !== '' ? parseInt(padre_id) : null,
-      'subnivel': parseInt(subnivel),
+      'subnivel': subnivel.toString().trim(),
       'nombre': nombre.trim(),
       'descripcion': descripcion ? descripcion.trim() : null,
     });

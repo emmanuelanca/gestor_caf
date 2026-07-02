@@ -146,11 +146,30 @@ CREATE TABLE proveedor (
 CREATE TABLE puc (
     id INT AUTO_INCREMENT PRIMARY KEY,
     padre_id INT,
-    subnivel INT UNSIGNED NOT NULL,
+    subnivel VARCHAR(50) NOT NULL,
+    codigo VARCHAR(255),
+    depth INT UNSIGNED DEFAULT 1,
     nombre VARCHAR(255) NOT NULL,
     descripcion VARCHAR(255),
     CONSTRAINT fk_puc_padre FOREIGN KEY (padre_id) REFERENCES puc(id)
 ) ENGINE=InnoDB;
+
+DELIMITER $$
+
+CREATE TRIGGER tg_puc_insert_tree_props
+BEFORE INSERT ON puc
+FOR EACH ROW
+BEGIN
+    IF NEW.padre_id IS NULL THEN
+        SET NEW.depth = 1;
+        SET NEW.codigo = NEW.subnivel;
+    ELSE
+        SET NEW.depth = (SELECT depth + 1 FROM puc WHERE id = NEW.padre_id);
+        SET NEW.codigo = (SELECT CONCAT(codigo, '.', NEW.subnivel) FROM puc WHERE id = NEW.padre_id);
+    END IF;
+END$$
+
+DELIMITER ;
 
 CREATE TABLE comprobante (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -528,12 +547,13 @@ WHERE NOT EXISTS (
     WHERE e.comprobante_compromiso_id = cr.comprobante_id
 );
 
--- puc_balance_directo es un paso intermedio para crear puc_balance_consolidado
 CREATE OR REPLACE VIEW puc_balance_directo AS
 SELECT 
     p.id AS puc_id,
     p.padre_id,
     p.subnivel,
+    p.codigo,
+    p.depth,
     p.nombre AS puc_cuenta,
     p.descripcion AS puc_descripcion,
     COALESCE(SUM(m.factor * m.subtotal), 0.00) AS balance
@@ -544,6 +564,8 @@ GROUP BY
     p.id, 
     p.padre_id, 
     p.subnivel, 
+    p.codigo,
+    p.depth,
     p.nombre, 
     p.descripcion;
 
@@ -553,12 +575,14 @@ WITH RECURSIVE puc_directo AS (
         p.id AS puc_id,
         p.padre_id,
         p.subnivel,
+        p.codigo,
+        p.depth,
         p.nombre,
         p.descripcion,
         COALESCE(SUM(m.factor * m.subtotal), 0.00) AS balance_directo
     FROM puc p
     LEFT JOIN movimiento_detallado m ON p.id = m.puc_id
-    GROUP BY p.id, p.padre_id, p.subnivel, p.nombre, p.descripcion
+    GROUP BY p.id, p.padre_id, p.subnivel, p.codigo, p.depth, p.nombre, p.descripcion
 ),
 puc_jerarquia AS (
     SELECT 
@@ -579,6 +603,8 @@ SELECT
     d.puc_id,
     d.padre_id,
     d.subnivel,
+    d.codigo,
+    d.depth,
     d.nombre AS puc_cuenta,
     d.descripcion AS puc_descripcion,
     d.balance_directo,
@@ -590,6 +616,8 @@ GROUP BY
     d.puc_id,
     d.padre_id,
     d.subnivel,
+    d.codigo,
+    d.depth,
     d.nombre,
     d.descripcion,
     d.balance_directo;

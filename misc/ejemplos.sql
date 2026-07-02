@@ -1,11 +1,11 @@
 -- 1. Plan Único de Cuentas (PUC)
 INSERT INTO puc (id, padre_id, subnivel, nombre, descripcion) VALUES
-(1, NULL, 1, 'Ingresos', 'Cuentas de ingresos generales'),
-(2, NULL, 1, 'Egresos', 'Cuentas de egresos generales'),
-(11, 1, 2, 'Cuotas Sociales', 'Ingresos por asociados'),
-(12, 1, 2, 'Eventos y Entradas', 'Ingresos por venta de tickets'),
-(21, 2, 2, 'Gastos de Personal', 'Honorarios y personal deportivo'),
-(22, 2, 2, 'Mantenimiento y Servicios', 'Servicios básicos e insumos');
+(1, NULL, '1', 'Ingresos', 'Cuentas de ingresos generales'),
+(2, NULL, '2', 'Egresos', 'Cuentas de egresos generales'),
+(11, 1, '1', 'Cuotas Sociales', 'Ingresos por asociados'),
+(12, 1, '2', 'Eventos y Entradas', 'Ingresos por venta de tickets'),
+(21, 2, '1', 'Gastos de Personal', 'Honorarios y personal deportivo'),
+(22, 2, '2', 'Mantenimiento y Servicios', 'Servicios básicos e insumos');
 
 -- 2. Cuentas de Fondos (Tesorería)
 INSERT INTO cuenta_fondos (id, nombre, tipo, institucion, moneda, activa, titular) VALUES
