@@ -1,9 +1,8 @@
-
 import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import * as db from './db';
-// Solución para la serialización de BigInt a JSON
+
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
 };
@@ -265,6 +264,7 @@ app.get('/api/provider', async (req, res) => {
 });
 
 // PUC
+
 app.get('/api/puc-balance', async (req, res) => {
   try {
     const result = await db.sqlQuery('SELECT * FROM puc_balance_consolidado ORDER BY puc_id ASC');
@@ -290,11 +290,11 @@ app.post('/api/puc', async (req, res) => {
     const { padre_id, subnivel, nombre, descripcion } = req.body;
 
     if (!nombre || nombre.trim() === '') {
-      return res.status(400).json({ error: 'El nombre del PUC es obligatorio' });
+      return res.status(400).json({ error: 'PUC name is mandatory' });
     }
 
     if (!subnivel || subnivel < 1) {
-      return res.status(400).json({ error: 'El subnivel debe ser mayor a 0' });
+      return res.status(400).json({ error: 'PUC sublevel must be greater than 0' });
     }
 
     if (padre_id !== null && padre_id !== undefined && padre_id !== '') {
@@ -319,6 +319,7 @@ app.post('/api/puc', async (req, res) => {
 });
 
 // INICIAR SERVIDOR
+
 app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`Server running...`);
 });
