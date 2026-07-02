@@ -87,7 +87,7 @@ export default function PUCPanel({ pucData }) {
             <tr>
               <th>Cuenta</th>
               <th>Descripción</th>
-              <th>Balance Consolidado</th>
+              <th>Balance</th>
             </tr>
           </thead>
           <tbody>
