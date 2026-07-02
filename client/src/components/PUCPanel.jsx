@@ -5,38 +5,37 @@ export default function PUCPanel({ pucData }) {
     return `${(subnivel - 1) * 20}px`;
   };
 
-  const formatCurrency = (value) => {
-    if (value === null || value === undefined) return '-';
-    const num = parseFloat(value);
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
+  const formatBalance = (balance) => {
+    if (balance === null || balance === undefined) return '-';
+    
+    const num = parseFloat(balance);
+    
+    const formatter = new Intl.NumberFormat('es-AR', {
       minimumFractionDigits: 2,
-    }).format(num);
-  };
+      maximumFractionDigits: 2,
+    });
 
-  const getBalanceIndicator = (balance) => {
-  const numBalance = parseFloat(balance);
-  
-  if (numBalance > 0) {
-    return (
-      <span style={{ color: '#27ae60', fontWeight: 'bold', marginRight: '8px' }}>
-        +
-      </span>
-    );
-  } else if (numBalance < 0) {
-    return (
-      <span style={{ color: '#e74c3c', fontWeight: 'bold', marginRight: '8px' }}>
-        −
-      </span>
-    );
-  } else {
-    return (
-      <span style={{ color: '#95a5a6', fontWeight: 'bold', marginRight: '8px' }}>
-        ±
-      </span>
-    );
-  }
+    const formattedNumber = formatter.format(Math.abs(num));
+
+    if (num > 0) {
+      return (
+        <span style={{ color: '#27ae60', fontWeight: 'bold' }}>
+          +{formattedNumber}
+        </span>
+      );
+    } else if (num < 0) {
+      return (
+        <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>
+          -{formattedNumber}
+        </span>
+      );
+    } else {
+      return (
+        <span style={{ color: '#95a5a6', fontWeight: 'bold' }}>
+          {formattedNumber}
+        </span>
+      );
+    }
   };
 
   return (
@@ -99,8 +98,7 @@ export default function PUCPanel({ pucData }) {
                 <td>{item.puc_descripcion || '-'}</td>
                 
                 <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
-                  {getBalanceIndicator(item.balance_consolidado)}
-                  {formatCurrency(Math.abs(item.balance_consolidado))}
+                  {formatBalance(item.balance_consolidado)}
                 </td>
               </tr>
             ))}
