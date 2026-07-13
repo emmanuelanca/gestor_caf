@@ -57,24 +57,23 @@ CREATE TABLE servicio (
 CREATE TABLE insumo (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
-    tipo VARCHAR(255) NOT NULL,
+    categoria VARCHAR(255) NOT NULL,
     unidad_medida VARCHAR(255) NOT NULL,
-    en_venta TINYINT NOT NULL,
     activo TINYINT NOT NULL DEFAULT 1,
     observaciones VARCHAR(255)
-) ENGINE=InnoDB;
-
-CREATE TABLE personal_deportivo (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    concepto VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE producto (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     categoria VARCHAR(255),
-    subcategoria VARCHAR(255)
+    subcategoria VARCHAR(255),
     activo TINYINT NOT NULL DEFAULT 1
+) ENGINE=InnoDB;
+
+CREATE TABLE personal_deportivo (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    concepto VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE socio_categoria (
