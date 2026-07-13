@@ -91,7 +91,7 @@ CREATE TABLE socio (
     nacionalidad VARCHAR(255) NOT NULL,
     categoria_id INT NOT NULL,
     fecha_alta DATE NOT NULL,
-    carnet TINYINT NOT NULL,
+    carnet TINYINT NOT NULL DEFAULT 1,
     estado_civil VARCHAR(255),
     fecha_baja DATE,
     fecha_nacimiento DATE,
