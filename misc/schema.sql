@@ -60,6 +60,7 @@ CREATE TABLE insumo (
     tipo VARCHAR(255) NOT NULL,
     unidad_medida VARCHAR(255) NOT NULL,
     en_venta TINYINT NOT NULL,
+    activo TINYINT NOT NULL DEFAULT 1,
     observaciones VARCHAR(255)
 ) ENGINE=InnoDB;
 
@@ -73,6 +74,7 @@ CREATE TABLE producto (
     nombre VARCHAR(255) NOT NULL,
     categoria VARCHAR(255),
     subcategoria VARCHAR(255)
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE socio_categoria (
