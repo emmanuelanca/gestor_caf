@@ -28,7 +28,10 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE liga (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(255) NOT NULL
+    concepto VARCHAR(255) NOT NULL,
+    tipo VARCHAR(255) NOT NULL,
+    periodicidad VARCHAR(255) NOT NULL,
+    descripcion VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE dependencia (
