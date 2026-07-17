@@ -31,19 +31,22 @@ CREATE TABLE liga (
     concepto VARCHAR(255) NOT NULL,
     tipo VARCHAR(255) NOT NULL,
     periodicidad VARCHAR(255) NOT NULL,
-    descripcion VARCHAR(255) NOT NULL
+    descripcion VARCHAR(255) NOT NULL,
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE dependencia (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     tipo VARCHAR(255) NOT NULL,
-    descripcion VARCHAR(255) NOT NULL
+    descripcion VARCHAR(255) NOT NULL,
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE honorario (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    concepto VARCHAR(255) NOT NULL
+    concepto VARCHAR(255) NOT NULL,
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE servicio_legal (
@@ -54,7 +57,8 @@ CREATE TABLE servicio_legal (
 CREATE TABLE servicio (
     id INT AUTO_INCREMENT PRIMARY KEY,
     descripcion VARCHAR(255) NOT NULL,
-    observaciones VARCHAR(255)
+    observaciones VARCHAR(255),
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE insumo (
@@ -76,13 +80,15 @@ CREATE TABLE producto (
 
 CREATE TABLE personal_deportivo (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    concepto VARCHAR(255) NOT NULL
+    concepto VARCHAR(255) NOT NULL,
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE socio_categoria (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
-    descripcion VARCHAR(255)
+    descripcion VARCHAR(255),
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE socio (
@@ -95,6 +101,7 @@ CREATE TABLE socio (
     categoria_id INT NOT NULL,
     fecha_alta DATE NOT NULL,
     carnet TINYINT NOT NULL DEFAULT 1,
+    activo TINYINT NOT NULL DEFAULT 1,
     estado_civil VARCHAR(255),
     fecha_baja DATE,
     fecha_nacimiento DATE,
@@ -111,7 +118,8 @@ CREATE TABLE socio (
 
 CREATE TABLE afectacion (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    destino VARCHAR(255) NOT NULL
+    destino VARCHAR(255) NOT NULL,
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE cuenta_fondos (
@@ -121,7 +129,8 @@ CREATE TABLE cuenta_fondos (
     institucion VARCHAR(255) NOT NULL,
     moneda VARCHAR(255) NOT NULL,
     activa TINYINT NOT NULL,
-    titular VARCHAR(255) NOT NULL
+    titular VARCHAR(255) NOT NULL,
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE entrada (
@@ -129,7 +138,8 @@ CREATE TABLE entrada (
     categoria VARCHAR(255) NOT NULL,
     tipo VARCHAR(255) NOT NULL,
     condiciones VARCHAR(255) NOT NULL,
-    descripcion VARCHAR(255) NOT NULL
+    descripcion VARCHAR(255) NOT NULL,
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE evento (
@@ -144,7 +154,8 @@ CREATE TABLE evento (
 CREATE TABLE proveedor (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
-    cuit VARCHAR(255) NOT NULL UNIQUE
+    cuit VARCHAR(255) NOT NULL UNIQUE,
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE puc (
@@ -155,6 +166,7 @@ CREATE TABLE puc (
     depth INT UNSIGNED DEFAULT 1,
     nombre VARCHAR(255) NOT NULL,
     descripcion VARCHAR(255),
+    activo TINYINT NOT NULL DEFAULT 1
     CONSTRAINT fk_puc_padre FOREIGN KEY (padre_id) REFERENCES puc(id)
 ) ENGINE=InnoDB;
 
