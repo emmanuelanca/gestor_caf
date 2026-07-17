@@ -1,4 +1,4 @@
-SET FOREIGN_KEY_CHECKS = 0;
+set FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS afectacion;
 DROP TABLE IF EXISTS comprobante;
@@ -51,7 +51,8 @@ CREATE TABLE honorario (
 
 CREATE TABLE servicio_legal (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    descripcion VARCHAR(255) NOT NULL
+    descripcion VARCHAR(255) NOT NULL,
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE servicio (
@@ -66,8 +67,8 @@ CREATE TABLE insumo (
     nombre VARCHAR(255) NOT NULL,
     categoria VARCHAR(255) NOT NULL,
     unidad_medida VARCHAR(255) NOT NULL,
-    activo TINYINT NOT NULL DEFAULT 1,
-    observaciones VARCHAR(255)
+    observaciones VARCHAR(255),
+    activo TINYINT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE producto (
@@ -101,7 +102,6 @@ CREATE TABLE socio (
     categoria_id INT NOT NULL,
     fecha_alta DATE NOT NULL,
     carnet TINYINT NOT NULL DEFAULT 1,
-    activo TINYINT NOT NULL DEFAULT 1,
     estado_civil VARCHAR(255),
     fecha_baja DATE,
     fecha_nacimiento DATE,
@@ -113,6 +113,7 @@ CREATE TABLE socio (
     altura VARCHAR(255),
     dom_cobro VARCHAR(255),
     numero_sorteo VARCHAR(255),
+    activo TINYINT NOT NULL DEFAULT 1,
     CONSTRAINT fk_socio_categoria FOREIGN KEY (categoria_id) REFERENCES socio_categoria(id)
 ) ENGINE=InnoDB;
 
