@@ -40,6 +40,21 @@ export default function PUCPanel({ pucData }) {
 
   return (
     <div className="vista-panel">
+      <div
+        className="row"
+        style={{ marginBottom: 12, justifyContent: 'space-between', alignItems: 'center' }}
+      >
+        <h3 style={{ margin: 0 }}>
+          {pucData.balanceType === 'devengado' ? 'PUC — Devengado' : 'PUC — Movimientos (Caja)'}
+        </h3>
+        <button
+          className="vista-button"
+          type="button"
+          onClick={pucData.toggleBalanceType}
+        >
+          Ver {pucData.balanceType === 'devengado' ? 'Movimientos' : 'Devengado'}
+        </button>
+      </div>
       <form onSubmit={pucData.handleInsertPuc} className="row" style={{ marginBottom: 12 }}>
         <input
           className="vista-input"

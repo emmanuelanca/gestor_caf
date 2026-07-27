@@ -264,10 +264,16 @@ app.get('/api/provider', async (req, res) => {
 });
 
 // PUC
-
 app.get('/api/puc-balance', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM puc_balance_consolidado ORDER BY codigo ASC');
+    // Whitelist explícito: nunca se interpola el query param directamente en el SQL.
+    const tipo = req.query.tipo === 'movimiento' ? 'movimiento' : 'devengado';
+
+    const view = tipo === 'movimiento'
+      ? 'puc_balance_movimiento_consolidado'
+      : 'puc_balance_devengado_consolidado';
+
+    const result = await db.sqlQuery(`SELECT * FROM ${view} ORDER BY codigo ASC`);
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
