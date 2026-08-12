@@ -32,12 +32,12 @@ INSERT INTO cuenta_fondos (nombre, tipo, institucion, moneda, activa, titular)
 VALUES ('Banco Nación - Cta Cte', 'Banco', 'Banco Nación', 'ARS', 1, 'Club');
 SET @cta_banco = LAST_INSERT_ID();
 
-INSERT INTO proveedor (nombre, cuit, puc_id) 
-VALUES ('EDDENOR S.A.', '30-65432109-8', @puc_servicios);
+INSERT INTO proveedor (nombre, cuit) 
+VALUES ('EDDENOR S.A.', '30-65432109-8');
 SET @prov_edenor = LAST_INSERT_ID();
 
-INSERT INTO proveedor (nombre, cuit, puc_id) 
-VALUES ('Pinturas y Servicios SRL', '30-99887766-5', @puc_mantenimiento);
+INSERT INTO proveedor (nombre, cuit) 
+VALUES ('Pinturas y Servicios SRL', '30-99887766-5');
 SET @prov_pinturas = LAST_INSERT_ID();
 
 INSERT INTO socio_categoria (nombre, descripcion) VALUES ('Activo', 'Socio con acceso total');
