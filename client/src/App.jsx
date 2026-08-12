@@ -9,12 +9,14 @@ import { useFundMovement } from './hooks/useFundMovement';
 import { usePendingCommitment } from './hooks/usePendingCommitment';
 import { useVoucherHead } from './hooks/useVoucherHead';
 import { usePuc } from './hooks/usePuc';
+import { useProduct } from './hooks/useProduct';
 
 import IncomePanel from './components/IncomePanel';
 import FundMovementPanel from './components/FundMovementPanel';
 import PendingCommitmentPanel from './components/PendingCommitmentPanel';
 import CreateVoucherHeadPanel from './components/CreateVoucherHeadPanel';
 import PUCPanel from './components/PUCPanel';
+import ProductPanel from './components/ProductPanel';
 
 function VistaLayout({ title, children }) {
   const navigate = useNavigate();
@@ -88,6 +90,14 @@ function Menu() {
             <div className="tile-desc">Crear comprobante rapido</div>
           </div>
         </Link>
+
+        <Link to="/productos" className="menu-tile primary-tile vertical">
+          <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
+          <div className="tile-text">
+            <div className="tile-title">Modificar productos</div>
+            <div className="tile-desc">Modificar productos</div>
+          </div>
+        </Link>
       </div>
     </div>
   );
@@ -99,6 +109,7 @@ export default function App() {
   const pendingCommitmentData = usePendingCommitment();
   const voucherHeadData = useVoucherHead();
   const pucData = usePuc();
+  const productData = useProduct();
 
   return (
     <Routes>
@@ -128,7 +139,7 @@ export default function App() {
           <VistaLayout title="Compromisos pendientes">
             <PendingCommitmentPanel pendingCommitmentData={pendingCommitmentData} />
           </VistaLayout>
-        } 
+        }
       />
 
       <Route 
@@ -147,6 +158,15 @@ export default function App() {
             <CreateVoucherHeadPanel voucherHeadData={voucherHeadData} />
           </VistaLayout>
         } 
+      />
+
+      <Route
+        path="/productos"
+        element={
+          <VistaLayout title="Modificar productos">
+            <ProductPanel productData={productData} />
+          </VistaLayout>
+        }
       />
 
       {}

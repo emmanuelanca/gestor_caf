@@ -158,6 +158,23 @@ app.get('/api/product', async (req, res) => {
   }
 });
 
+app.post('/api/product', async (req, res) => {
+  try {
+    const result = await db.rowCreate('producto', {
+      'nombre': req.body.name ? req.body.name.trim() : null,
+      'categoria': req.body.category ? req.body.category.trim() : null,
+      'subcategoria': req.body.subcategory ? req.body.subcategory.trim() : null,
+      'puc_venta_id': req.body.pucSaleId ? parseInt(req.body.pucSaleId) : null,
+      'puc_compra_id': req.body.pucPurchaseId ? parseInt(req.body.pucPurchaseId) : null,
+    });
+
+    res.status(201).json({ success: true, id: result });
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.get('/api/fund-movement', async (req, res) => {
   try {
     const result = await db.sqlQuery('SELECT * FROM movimiento_detallado ORDER BY fecha_pago DESC');
