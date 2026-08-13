@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -13,6 +13,8 @@ export function useProduct() {
   const [newPucSaleId, setNewPucSaleId] = useState('');
   const [newPucPurchaseId, setNewPucPurchaseId] = useState('');
   const [newActive, setNewActive] = useState(true);
+
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('');
 
   const fetchProducts = async () => {
     try {
@@ -147,8 +149,24 @@ export function useProduct() {
     label: `[${p.codigo || '-'}] ${p.nombre}`,
   }));
 
+  const categoryOptions = useMemo(() => {
+    const categories = productList
+      .map((p) => p.categoria)
+      .filter((cat) => cat && cat.trim() !== '');
+    const uniqueCategories = Array.from(new Set(categories));
+    return uniqueCategories.map((cat) => ({
+      value: cat,
+      label: cat,
+    }));
+  }, [productList]);
+
+  const filteredProductList = useMemo(() => {
+    if (!selectedCategoryFilter) return productList;
+    return productList.filter((p) => p.categoria === selectedCategoryFilter);
+  }, [productList, selectedCategoryFilter]);
+
   return {
-    productList,
+    productList: filteredProductList,
     allPuc,
     editingId,
     newName,
@@ -163,6 +181,9 @@ export function useProduct() {
     setNewPucPurchaseId,
     newActive,
     setNewActive,
+    selectedCategoryFilter,
+    setSelectedCategoryFilter,
+    categoryOptions,
     optionsPuc,
     handleInsertProduct,
     handleStartEdit,

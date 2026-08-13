@@ -73,6 +73,22 @@ export default function ProductPanel({ productData }) {
         )}
       </form>
 
+      <div className="row" style={{ marginBottom: 12, alignItems: 'center', gap: '10px' }}>
+        <div className="vista-input" style={{ maxWidth: '300px' }}>
+          <Select
+            placeholder="Filtrar por categoría..."
+            value={
+              productData.categoryOptions.find(
+                (o) => o.value === productData.selectedCategoryFilter
+              ) || null
+            }
+            onChange={(e) => productData.setSelectedCategoryFilter(e ? e.value : '')}
+            options={productData.categoryOptions}
+            isClearable
+          />
+        </div>
+      </div>
+
       <div className="table-wrap">
         <table className="vista-table">
           <thead>
