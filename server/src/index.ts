@@ -166,12 +166,35 @@ app.post('/api/product', async (req, res) => {
       'subcategoria': req.body.subcategory ? req.body.subcategory.trim() : null,
       'puc_venta_id': req.body.pucSaleId ? parseInt(req.body.pucSaleId) : null,
       'puc_compra_id': req.body.pucPurchaseId ? parseInt(req.body.pucPurchaseId) : null,
+      'activo': req.body.active !== undefined ? parseInt(req.body.active) : 1,
     });
 
     res.status(201).json({ success: true, id: result });
   } catch (error) {
     console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.put('/api/product/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.sqlQuery(`
+      UPDATE producto 
+      SET 
+        nombre = ${req.body.name ? `'${req.body.name.trim()}'` : 'NULL'},
+        categoria = ${req.body.category ? `'${req.body.category.trim()}'` : 'NULL'},
+        subcategoria = ${req.body.subcategory ? `'${req.body.subcategory.trim()}'` : 'NULL'},
+        puc_venta_id = ${req.body.pucSaleId ? parseInt(req.body.pucSaleId) : 'NULL'},
+        puc_compra_id = ${req.body.pucPurchaseId ? parseInt(req.body.pucPurchaseId) : 'NULL'},
+        activo = ${req.body.active !== undefined ? parseInt(req.body.active) : 'activo'}
+      WHERE id = ${parseInt(id)}
+    `);
+
+    res.json({ success: true, message: 'Product updated successfully' });
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 

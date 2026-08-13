@@ -6,11 +6,13 @@ export function useProduct() {
   const [productList, setProductList] = useState([]);
   const [allPuc, setAllPuc] = useState([]);
 
+  const [editingId, setEditingId] = useState(null);
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [newSubcategory, setNewSubcategory] = useState('');
   const [newPucSaleId, setNewPucSaleId] = useState('');
   const [newPucPurchaseId, setNewPucPurchaseId] = useState('');
+  const [newActive, setNewActive] = useState(true);
 
   const fetchProducts = async () => {
     try {
@@ -30,6 +32,26 @@ export function useProduct() {
     } catch (error) {
       console.error('Error fetching all PUC: ', error);
     }
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setNewName('');
+    setNewCategory('');
+    setNewSubcategory('');
+    setNewPucSaleId('');
+    setNewPucPurchaseId('');
+    setNewActive(true);
+  };
+
+  const handleStartEdit = (item) => {
+    setEditingId(item.id);
+    setNewName(item.nombre || '');
+    setNewCategory(item.categoria || '');
+    setNewSubcategory(item.subcategoria || '');
+    setNewPucSaleId(item.puc_venta_id ? item.puc_venta_id.toString() : '');
+    setNewPucPurchaseId(item.puc_compra_id ? item.puc_compra_id.toString() : '');
+    setNewActive(item.activo === 1);
   };
 
   const handleInsertProduct = async (e) => {
@@ -56,10 +78,17 @@ export function useProduct() {
         subcategory: newSubcategory.trim() || null,
         pucSaleId: parseInt(newPucSaleId),
         pucPurchaseId: parseInt(newPucPurchaseId),
+        active: newActive ? 1 : 0,
       };
 
-      const response = await fetch(`${API_URL}/api/product`, {
-        method: 'POST',
+      const endpoint = editingId
+        ? `${API_URL}/api/product/${editingId}`
+        : `${API_URL}/api/product`;
+
+      const method = editingId ? 'PUT' : 'POST';
+
+      const response = await fetch(endpoint, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
@@ -71,15 +100,40 @@ export function useProduct() {
       }
 
       await fetchProducts();
-
-      setNewName('');
-      setNewCategory('');
-      setNewSubcategory('');
-      setNewPucSaleId('');
-      setNewPucPurchaseId('');
+      resetForm();
     } catch (error) {
       console.error(error);
-      alert('Error al insertar el producto');
+      alert('Error al guardar el producto');
+    }
+  };
+
+  const handleToggleActive = async (item) => {
+    try {
+      const payload = {
+        name: item.nombre,
+        category: item.categoria,
+        subcategory: item.subcategoria,
+        pucSaleId: item.puc_venta_id,
+        pucPurchaseId: item.puc_compra_id,
+        active: item.activo === 1 ? 0 : 1,
+      };
+
+      const response = await fetch(`${API_URL}/api/product/${item.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+        return;
+      }
+
+      await fetchProducts();
+    } catch (error) {
+      console.error('Error toggling product active state: ', error);
+      alert('Error al cambiar el estado del producto');
     }
   };
 
@@ -96,6 +150,7 @@ export function useProduct() {
   return {
     productList,
     allPuc,
+    editingId,
     newName,
     setNewName,
     newCategory,
@@ -106,7 +161,12 @@ export function useProduct() {
     setNewPucSaleId,
     newPucPurchaseId,
     setNewPucPurchaseId,
+    newActive,
+    setNewActive,
     optionsPuc,
     handleInsertProduct,
+    handleStartEdit,
+    handleToggleActive,
+    resetForm,
   };
 }
