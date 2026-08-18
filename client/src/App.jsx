@@ -9,12 +9,15 @@ import { useFundMovement } from './hooks/useFundMovement';
 import { usePendingCommitment } from './hooks/usePendingCommitment';
 import { useVoucherHead } from './hooks/useVoucherHead';
 import { usePuc } from './hooks/usePuc';
+import { useProvider } from './hooks/useProvider';
+
 
 import IncomePanel from './components/IncomePanel';
 import FundMovementPanel from './components/FundMovementPanel';
 import PendingCommitmentPanel from './components/PendingCommitmentPanel';
 import CreateVoucherHeadPanel from './components/CreateVoucherHeadPanel';
 import PUCPanel from './components/PUCPanel';
+import ProviderPanel from './components/ProviderPanel';
 
 function VistaLayout({ title, children }) {
   const navigate = useNavigate();
@@ -88,6 +91,14 @@ function Menu() {
             <div className="tile-desc">Crear comprobante rapido</div>
           </div>
         </Link>
+
+        <Link to="/proveedores" className="menu-tile primary-tile vertical">
+          <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
+          <div className="tile-text">
+            <div className="tile-title">Proveedores</div>
+            <div className="tile-desc">Ver y gestionar proveedores</div>
+          </div>
+        </Link>
       </div>
     </div>
   );
@@ -99,6 +110,7 @@ export default function App() {
   const pendingCommitmentData = usePendingCommitment();
   const voucherHeadData = useVoucherHead();
   const pucData = usePuc();
+  const providerData = useProvider();
 
   return (
     <Routes>
@@ -145,6 +157,15 @@ export default function App() {
         element={
           <VistaLayout title="Crear comprobante rapido">
             <CreateVoucherHeadPanel voucherHeadData={voucherHeadData} />
+          </VistaLayout>
+        } 
+      />
+
+      <Route 
+        path="/proveedores" 
+        element={
+          <VistaLayout title="Proveedores">
+            <ProviderPanel providerData={providerData} />
           </VistaLayout>
         } 
       />

@@ -253,13 +253,93 @@ app.post('/api/voucher-head', async (req, res) => {
   }
 });
 
+// PROVEEDORES
 app.get('/api/provider', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM proveedor');
+        const result = await db.sqlQuery('SELECT * FROM proveedor ORDER BY nombre ASC');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/provider', async (req, res) => {
+  try {
+    const nombre = typeof req.body.nombre === 'string' ? req.body.nombre.trim() : '';
+    const cuit = typeof req.body.cuit === 'string' ? req.body.cuit.trim() : '';
+
+    if (!nombre) {
+      return res.status(400).json({ error: 'El nombre del proveedor es obligatorio' });
+    }
+
+    if (!cuit) {
+      return res.status(400).json({ error: 'El CUIT del proveedor es obligatorio' });
+    }
+
+    if (!/^\d{2}-\d{8}-\d{1}$/.test(cuit)) {
+      return res.status(400).json({ error: 'El CUIT debe tener el formato XX-XXXXXXXX-X' });
+    }
+
+    const id = await db.rowCreate('proveedor', {
+      'nombre': nombre,
+      'cuit': cuit,
+      'activo': 1,
+    });
+
+    res.status(201).json({ success: true, id });
+  } catch (error: any) {
+    if (error?.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: 'Ya existe un proveedor con ese CUIT' });
+    }
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.put('/api/provider/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const providerId = parseInt(id);
+    if (Number.isNaN(providerId)) {
+      return res.status(400).json({ error: 'ID de proveedor inválido' });
+    }
+
+    const changes: Record<string, any> = {};
+
+    if (req.body.nombre !== undefined) {
+      const nombre = String(req.body.nombre).trim();
+      if (!nombre) {
+        return res.status(400).json({ error: 'El nombre del proveedor es obligatorio' });
+      }
+      changes['nombre'] = nombre;
+    }
+
+    if (req.body.cuit !== undefined) {
+      const cuit = String(req.body.cuit).trim();
+      if (!/^\d{2}-\d{8}-\d{1}$/.test(cuit)) {
+        return res.status(400).json({ error: 'El CUIT debe tener el formato XX-XXXXXXXX-X' });
+      }
+      changes['cuit'] = cuit;
+    }
+
+    if (req.body.activo !== undefined) {
+      changes['activo'] = req.body.activo ? 1 : 0;
+    }
+
+    if (Object.keys(changes).length === 0) {
+      return res.status(400).json({ error: 'No hay cambios para aplicar' });
+    }
+
+    await db.rowEdit('proveedor', providerId, changes);
+
+    res.json({ success: true });
+  } catch (error: any) {
+    if (error?.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: 'Ya existe un proveedor con ese CUIT' });
+    }
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

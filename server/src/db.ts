@@ -163,3 +163,43 @@ export async function pucCreate(
     code: code
   })
 }
+
+export type DbConnection = mariadb.PoolConnection;
+
+export async function withTransaction<T>(
+  fn: (conn: DbConnection) => Promise<T>
+): Promise<T> {
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const result = await fn(conn);
+    await conn.commit();
+    return result;
+  } catch (error) {
+    await conn.rollback();
+    throw error;
+  } finally {
+    conn.release();
+  }
+}
+
+export async function rowCreateTx(
+  conn: DbConnection,
+  table: string,
+  args: Record<string, any>
+): Promise<number> {
+  const columns = Object.keys(args).join(', ');
+  const placeholders = Object.keys(args).map(() => '?').join(', ');
+  const values = Object.values(args);
+  const query = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`;
+  const result = await conn.query(query, values);
+  return result.insertId;
+}
+
+export async function queryTx(
+  conn: DbConnection,
+  query: string,
+  values: any[] = []
+) {
+  return conn.query(query, values);
+}
