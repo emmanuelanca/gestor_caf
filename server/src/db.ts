@@ -50,7 +50,7 @@ export async function calendarDateToId(date: string | Date): Promise<number | nu
   const rows = await sqlQuery(`SELECT id FROM fechas WHERE fecha = '${formattedDate}' LIMIT 1`) as CalendarRow[];
 
   if (rows && rows.length > 0) {
-    return rows[0].id;
+    return rows[0]!.id;
   }
 
   return null;
@@ -94,13 +94,16 @@ export function calendarCreateYear(targetYear: number): void {
 export async function rowCreate(
   table: string,
   args: Record<string, any>
-): Promise<void> {
+): Promise<number> {
   const columns = Object.keys(args).join(', ');
   const placeholders = Object.keys(args).map(() => '?').join(', ');
   const values = Object.values(args);
   const query = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`;
+
   const rows = await pool.query(query, values);
+
   console.log(`Row created in ${table}`);
+
   return rows.insertId;
 }
 
@@ -132,34 +135,38 @@ export async function rowDelete(
 
 export async function pucGetHierarchy(id: number): Promise<string> {
   let currentId: number | null = id;
-  const hierarchy: number[] = [];
+  const hierarchy: string[] = [];
 
   while (currentId !== null) {
-    const rows: string = await pool.query(
-      'SELECT padre, subnivel FROM puc WHERE id = ?',
+    const rows = await pool.query(
+      'SELECT padre_id, subnivel FROM puc WHERE id = ?',
       [currentId]
-    );
+    ) as Array<{
+      padre_id: number | null;
+      subnivel: string;
+    }>;
 
     if (rows.length === 0) break;
 
-    const { parent, sublevel } = rows[0];
-    hierarchy.unshift(sublevel);
-    currentId = parent;
+    const row = rows[0]!;
+
+    hierarchy.unshift(row.subnivel);
+    currentId = row.padre_id;
   }
 
   return hierarchy.join('.');
 }
 
 export async function pucCreate(
-  parent: number,
-  sublevel: number,
+  parent: number | null,
+  sublevel: string,
   args: Record<string, any>
-): Promise<void> {
-  const code = `${await pucGetHierarchy(parent)}.${sublevel}`
-  await rowCreate("puc", {
+): Promise<number> {
+  const result = await rowCreate('puc', {
     ...args,
-    parent: parent,
-    sublevel: sublevel,
-    code: code
-  })
+    padre_id: parent,
+    subnivel: sublevel
+  });
+
+  return result;
 }

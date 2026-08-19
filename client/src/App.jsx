@@ -10,6 +10,7 @@ import { usePendingCommitment } from './hooks/usePendingCommitment';
 import { useVoucherHead } from './hooks/useVoucherHead';
 import { usePuc } from './hooks/usePuc';
 import { useProduct } from './hooks/useProduct';
+import { useSupply } from './hooks/useSupply';
 
 import IncomePanel from './components/IncomePanel';
 import FundMovementPanel from './components/FundMovementPanel';
@@ -17,6 +18,7 @@ import PendingCommitmentPanel from './components/PendingCommitmentPanel';
 import CreateVoucherHeadPanel from './components/CreateVoucherHeadPanel';
 import PUCPanel from './components/PUCPanel';
 import ProductPanel from './components/ProductPanel';
+import SupplyPanel from './components/SupplyPanel';
 
 function VistaLayout({ title, children }) {
   const navigate = useNavigate();
@@ -98,6 +100,16 @@ function Menu() {
             <div className="tile-desc">Modificar productos</div>
           </div>
         </Link>
+
+        <Link to="/insumos" className="menu-tile primary-tile vertical">
+          <div className="tile-icon refined">
+            <MdAccountBalanceWallet className="svg-icon" />
+          </div>
+          <div className="tile-text">
+            <div className="tile-title">Modificar insumos</div>
+            <div className="tile-desc">Modificar insumos</div>
+          </div>
+        </Link>
       </div>
     </div>
   );
@@ -110,6 +122,7 @@ export default function App() {
   const voucherHeadData = useVoucherHead();
   const pucData = usePuc();
   const productData = useProduct();
+  const supplyData = useSupply();
 
   return (
     <Routes>
@@ -165,6 +178,15 @@ export default function App() {
         element={
           <VistaLayout title="Modificar productos">
             <ProductPanel productData={productData} />
+          </VistaLayout>
+        }
+      />
+
+      <Route
+        path="/insumos"
+        element={
+          <VistaLayout title="Modificar insumos">
+            <SupplyPanel supplyData={supplyData} />
           </VistaLayout>
         }
       />

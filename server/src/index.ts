@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
-import * as db from './db';
+import * as db from './db.js';
 
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
@@ -158,6 +158,87 @@ app.get('/api/product', async (req, res) => {
   }
 });
 
+app.get('/api/supply', async (req, res) => {
+  try {
+    const result = await db.sqlQuery('SELECT * FROM insumo');
+    res.json(result);
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/supply', async (req, res) => {
+  try {
+    const result = await db.rowCreate('insumo', {
+      'nombre': req.body.name ? req.body.name.trim() : null,
+      'categoria': req.body.category ? req.body.category.trim() : null,
+      'unidad_medida': req.body.unit ? req.body.unit.trim() : null,
+      'observaciones': req.body.observations
+        ? req.body.observations.trim()
+        : null,
+      'puc_id': req.body.pucId
+        ? parseInt(req.body.pucId)
+        : null,
+      'activo': req.body.active !== undefined
+        ? parseInt(req.body.active)
+        : 1,
+    });
+
+    res.status(201).json({
+      success: true,
+      id: result
+    });
+
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
+app.put('/api/supply/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await db.sqlQuery(`
+      UPDATE insumo
+      SET
+        nombre = ${req.body.name ? `'${req.body.name.trim()}'` : 'NULL'},
+        categoria = ${req.body.category ? `'${req.body.category.trim()}'` : 'NULL'},
+        unidad_medida = ${req.body.unit ? `'${req.body.unit.trim()}'` : 'NULL'},
+        observaciones = ${
+          req.body.observations
+            ? `'${req.body.observations.trim()}'`
+            : 'NULL'
+        },
+        puc_id = ${
+          req.body.pucId
+            ? parseInt(req.body.pucId)
+            : 'NULL'
+        },
+        activo = ${
+          req.body.active !== undefined
+            ? parseInt(req.body.active)
+            : 1
+        }
+      WHERE id = ${parseInt(id)}
+    `);
+
+    res.json({
+      success: true,
+      message: 'Supply updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({
+      error: 'Internal Server Error'
+    });
+  }
+});
+
 app.post('/api/product', async (req, res) => {
   try {
     const result = await db.rowCreate('producto', {
@@ -195,6 +276,91 @@ app.put('/api/product/:id', async (req, res) => {
   } catch (error) {
     console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/supply', async (req, res) => {
+  try {
+    const result = await db.sqlQuery(`
+      SELECT
+        i.id,
+        i.nombre,
+        i.categoria,
+        i.unidad_medida,
+        i.observaciones,
+        i.puc_id,
+        p.nombre AS puc_nombre,
+        i.activo
+      FROM insumo i
+      LEFT JOIN puc p
+        ON i.puc_id = p.id
+      ORDER BY i.nombre ASC
+    `);
+
+    res.json(result);
+
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/supply', async (req, res) => {
+  try {
+    const result = await db.rowCreate('insumo', {
+      'nombre': req.body.name ? req.body.name.trim() : null,
+      'categoria': req.body.category ? req.body.category.trim() : null,
+      'unidad_medida': req.body.unit ? req.body.unit.trim() : null,
+      'observaciones': req.body.observations
+        ? req.body.observations.trim()
+        : null,
+      'puc_id': req.body.pucId
+        ? parseInt(req.body.pucId)
+        : null,
+      'activo': req.body.active !== undefined
+        ? parseInt(req.body.active)
+        : 1,
+    });
+
+    res.status(201).json({
+      success: true,
+      id: result
+    });
+
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
+app.put('/api/supply/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await db.sqlQuery(`
+      UPDATE insumo
+      SET
+        nombre = ${req.body.name ? `'${req.body.name.trim()}'` : 'NULL'},
+        categoria = ${req.body.category ? `'${req.body.category.trim()}'` : 'NULL'},
+        unidad_medida = ${req.body.unit ? `'${req.body.unit.trim()}'` : 'NULL'},
+        observaciones = ${req.body.observations ? `'${req.body.observations.trim()}'` : 'NULL'},
+        puc_id = ${req.body.pucId ? parseInt(req.body.pucId) : 'NULL'},
+        activo = ${req.body.active !== undefined ? parseInt(req.body.active) : 1}
+      WHERE id = ${parseInt(id)}
+    `);
+
+    res.json({
+      success: true,
+      message: 'Supply updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({
+      error: 'Internal Server Error'
+    });
   }
 });
 
