@@ -24,7 +24,7 @@ export function usePendingCommitment() {
 
     const opcionesTexto = fundAccount.map(f => `${f.id}: ${f.nombre}`).join('\n');
     const cuentaSeleccionada = window.prompt(
-      `Pagar compromiso por $${commitmentItem.monto}\nSeleccione el ID de la cuenta de fondos:\n\n${opcionesTexto}`
+      `Pagar compromiso por $${commitmentItem.comprobante_numero} por $${commitmentItem.monto}\nSeleccione el ID de la cuenta de fondos:\n\n${opcionesTexto}`
     );
 
     if (!cuentaSeleccionada) return;
@@ -39,8 +39,8 @@ export function usePendingCommitment() {
       const values = {
         date: new Date().toISOString().split('T')[0],
         fundAccount: cuentaSeleccionada,
-        amount: commitmentItem.monto,
-        commitment: commitmentItem.id,
+        comprobanteId: commitmentItem.comprobante_id,
+        
       };
 
       const response = await fetch(`${API_URL}/api/pending-commitment`, {
@@ -53,7 +53,8 @@ export function usePendingCommitment() {
         alert('Pago registrado con éxito');
         await fetchPendingCommitment();
       } else {
-        alert('Error al registrar el pago en el servidor');
+        const error = await response.json();
+        alert(`Error al registrar el pago: ${error.error}`);
       }
     } catch (error) {
       console.error(error);

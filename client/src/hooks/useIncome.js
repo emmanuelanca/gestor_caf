@@ -10,6 +10,8 @@ export function useIncome() {
   const [event, setEvent] = useState([]);
   const [ticket, setTicket] = useState([]);
   const [product, setProduct] = useState([]);
+  const [puc, setPuc] = useState([]);
+
 
   const [newDate, setNewDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [newAmount, setNewAmount] = useState('');
@@ -19,6 +21,8 @@ export function useIncome() {
   const [newEvent, setNewEvent] = useState('');
   const [newTicket, setNewTicket] = useState('');
   const [newProduct, setNewProduct] = useState('');
+  const [newPuc, setNewPuc] = useState('');
+
 
   const fetchIncome = async () => {
     try {
@@ -32,11 +36,18 @@ export function useIncome() {
 
   const handleInsertIncome = async (e) => {
     if (e) e.preventDefault();
+
+    if (!newDate || !newAmount || !newFundAccount || !newPuc) {
+      alert('Fecha, monto, cuenta de fondos y cuenta PUC son obligatorios');
+      return;
+    }
+    
     try {
       const valuesIncome = {
         date: newDate,
         fundAccount: newFundAccount,
         amount: newAmount,
+        puc: newPuc,
         member: newMember || null,
         allocation: newAllocation || null,
         event: newEvent || null,
@@ -44,11 +55,17 @@ export function useIncome() {
         product: newProduct || null
       };
 
-      await fetch(`${API_URL}/api/income`, {
+      const response = await fetch(`${API_URL}/api/income`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(valuesIncome)
       });
+
+      if (!response.ok) {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+        return;
+      }
 
       await fetchIncome();
 
@@ -60,6 +77,7 @@ export function useIncome() {
       setNewEvent('');
       setNewTicket('');
       setNewProduct('');
+      setNewPuc('');
     } catch (error) {
       console.error(error);
       alert('Error while inserting an income');
@@ -84,6 +102,7 @@ export function useIncome() {
   useEffect(() => { fetch(`${API_URL}/api/event`).then(r => r.json()).then(setEvent); }, []);
   useEffect(() => { fetch(`${API_URL}/api/ticket`).then(r => r.json()).then(setTicket); }, []);
   useEffect(() => { fetch(`${API_URL}/api/product`).then(r => r.json()).then(setProduct); }, []);
+  useEffect(() => { fetch(`${API_URL}/api/puc`).then(r => r.json()).then(setPuc); }, []);
 
   const optionsFundAccount = fundAccount.map(f => ({ value: f.id, label: f.nombre }));
   const optionsAllocation = allocation.map(a => ({ value: a.id, label: a.destino }));
@@ -91,6 +110,7 @@ export function useIncome() {
   const optionsTicket = ticket.map(t => ({ value: t.id, label: t.categoria }));
   const optionsProduct = product.map(p => ({ value: p.id, label: p.nombre }));
   const optionsMember = member.map(m => ({ value: m.id, label: `${m.apellido} ${m.nombre} (${m.dni})` }));
+  const optionsPuc = puc.map(p => ({ value: p.id, label: `[${p.codigo || '-'}] ${p.nombre}` }));
 
   return {
     income,
@@ -102,12 +122,14 @@ export function useIncome() {
     newEvent, setNewEvent,
     newTicket, setNewTicket,
     newProduct, setNewProduct,
+    newPuc, setNewPuc,
     optionsFundAccount,
     optionsAllocation,
     optionsEvent,
     optionsTicket,
     optionsProduct,
     optionsMember,
+    optionsPuc,
     handleInsertIncome,
     handleDeleteIncome
   };

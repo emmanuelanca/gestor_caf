@@ -70,6 +70,15 @@ export default function IncomePanel({ incomeData }) {
             isClearable
           />
         </div>
+        <div className="vista-input">
+          <Select
+            placeholder="Cuenta PUC (obligatorio)"
+            value={incomeData.optionsPuc.find(o => o.value === parseInt(incomeData.newPuc)) || null}
+            onChange={(e) => incomeData.setNewPuc(e ? e.value : "")}
+            options={incomeData.optionsPuc}
+            isClearable
+          />
+        </div>
         <button className="vista-button primary" type="submit">
           Agregar
         </button>

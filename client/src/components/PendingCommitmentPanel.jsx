@@ -7,24 +7,20 @@ export default function PendingCommitmentPanel({ pendingCommitmentData }) {
             <tr>
               <th>Fecha Vencimiento</th>
               <th>Fecha Devengamiento</th>
-              <th>Código PUC</th>
-              <th>Nombre PUC</th>
-              <th>Monto</th>
               <th>Comprobante</th>
-              <th>Origen</th>
+              <th>Proveedor</th>
+              <th>Monto</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {pendingCommitmentData.pendingCommitment.map((item) => (
-              <tr key={item.id}>
+              <tr key={item.comprobante_id}>
                 <td>{item.fecha_vencimiento ? new Date(item.fecha_vencimiento).toLocaleDateString() : '-'}</td>
                 <td>{item.fecha_devengamiento ? new Date(item.fecha_devengamiento).toLocaleDateString() : '-'}</td>
-                <td>{item.puc_codigo}</td>
-                <td>{item.puc_nombre}</td>
+                <td>{item.comprobante_tipo} N° {item.comprobante_numero}</td>
+                <td>{item.proveedor_nombre || '-'}</td>
                 <td>${item.monto}</td>
-                <td>{item.comprobante_numero || '-'}</td>
-                <td>{item.origen_tipo}</td>
                 <td>
                   <button
                     onClick={() => pendingCommitmentData.handlePayCommitment(item)}
