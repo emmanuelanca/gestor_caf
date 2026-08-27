@@ -10,6 +10,7 @@ import { usePendingCommitment } from './hooks/usePendingCommitment';
 import { useVoucherHead } from './hooks/useVoucherHead';
 import { usePuc } from './hooks/usePuc';
 import { useProvider } from './hooks/useProvider';
+import { useVoucherItemCommitment } from './hooks/useVoucherItemCommitment';
 
 
 import IncomePanel from './components/IncomePanel';
@@ -18,6 +19,8 @@ import PendingCommitmentPanel from './components/PendingCommitmentPanel';
 import CreateVoucherHeadPanel from './components/CreateVoucherHeadPanel';
 import PUCPanel from './components/PUCPanel';
 import ProviderPanel from './components/ProviderPanel';
+import VoucherItemCommitmentPanel from './components/VoucherItemCommitmentPanel';
+
 
 function VistaLayout({ title, children }) {
   const navigate = useNavigate();
@@ -99,6 +102,13 @@ function Menu() {
             <div className="tile-desc">Ver y gestionar proveedores</div>
           </div>
         </Link>
+        <Link to="/detalle-comprobante" className="menu-tile primary-tile vertical">
+          <div className="tile-icon refined"><MdAccountBalanceWallet className="svg-icon" /></div>
+          <div className="tile-text">
+            <div className="tile-title">Detalle comprobante</div>
+            <div className="tile-desc">Cargar ítems de compra</div>
+          </div>
+        </Link>
       </div>
     </div>
   );
@@ -111,6 +121,7 @@ export default function App() {
   const voucherHeadData = useVoucherHead();
   const pucData = usePuc();
   const providerData = useProvider();
+  const voucherItemCommitmentData = useVoucherItemCommitment();
 
   return (
     <Routes>
@@ -168,6 +179,15 @@ export default function App() {
             <ProviderPanel providerData={providerData} />
           </VistaLayout>
         } 
+      />
+
+      <Route
+        path="/detalle-comprobante"
+        element={
+          <VistaLayout title="Detalle de Comprobante">
+            <VoucherItemCommitmentPanel data={voucherItemCommitmentData} />
+          </VistaLayout>
+        }
       />
 
       {}

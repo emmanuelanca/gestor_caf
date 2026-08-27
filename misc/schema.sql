@@ -224,8 +224,12 @@ CREATE TABLE comprobante (
     fecha_emision DATE NOT NULL,
     fecha_vencimiento DATE,
     proveedor_id INT,
+    anulado TINYINT NOT NULL DEFAULT 0,--
+    anulado_at DATETIME NULL,--
     CONSTRAINT fk_comprobante_proveedor FOREIGN KEY (proveedor_id) REFERENCES proveedor(id)
 ) ENGINE=InnoDB;
+
+CREATE INDEX idx_comprobante_anulado ON comprobante(anulado);--
 
 CREATE TABLE comprobante_item_compromiso (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -252,7 +256,8 @@ CREATE TABLE comprobante_item_compromiso (
     CONSTRAINT fk_comprobante_item_compromiso_personal_deportivo FOREIGN KEY (personal_deportivo_id) REFERENCES personal_deportivo(id),
     CONSTRAINT fk_comprobante_item_compromiso_producto FOREIGN KEY (producto_id) REFERENCES producto(id),
     CONSTRAINT fk_comprobante_item_compromiso_servicio FOREIGN KEY (servicio_id) REFERENCES servicio(id),
-    CONSTRAINT fk_comprobante_item_compromiso_servicio_legal FOREIGN KEY (servicio_legal_id) REFERENCES servicio_legal(id)
+    CONSTRAINT fk_comprobante_item_compromiso_servicio_legal FOREIGN KEY (servicio_legal_id) REFERENCES servicio_legal(id),
+    CONSTRAINT uq_item_compromiso_comprobante_producto UNIQUE (comprobante_id, producto_id)--
 ) ENGINE=InnoDB;
 
 CREATE TABLE comprobante_item_ingreso (

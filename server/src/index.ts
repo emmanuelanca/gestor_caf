@@ -99,7 +99,7 @@ app.get('/api/commitment', async (req, res) => {
   }
 });
 
-app.post('/api/commitment', async (req, res) => {
+/*app.post('/api/commitment', async (req, res) => {
   try {
     const result = await db.rowCreate('compromiso', {
     });
@@ -107,6 +107,62 @@ app.post('/api/commitment', async (req, res) => {
     res.status(201).json({ success: true, data: result });
 
   } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});*/
+
+app.post('/api/commitment', async (req, res) => {
+  try {
+    const comprobanteId = parseInt(req.body.comprobanteId);
+    const fechaDevengamiento = req.body.fechaDevengamiento || null;
+
+    if (Number.isNaN(comprobanteId)) {
+      return res.status(400).json({ error: 'comprobanteId inválido' });
+    }
+
+    await db.withTransaction(async (conn) => {
+      const compRows: any[] = await db.queryTx(
+        conn,
+        'SELECT id, fecha_emision, anulado FROM comprobante WHERE id = ? LIMIT 1',
+        [comprobanteId]
+      );
+      if (!compRows.length) {
+        throw new Error('El comprobante no existe');
+      }
+      if (compRows[0].anulado === 1) {
+        throw new Error('No se puede generar compromiso sobre un comprobante anulado');
+      }
+
+      const alreadyRows: any[] = await db.queryTx(
+        conn,
+        'SELECT id FROM compromiso WHERE comprobante_id = ? LIMIT 1',
+        [comprobanteId]
+      );
+      if (alreadyRows.length) {
+        throw new Error('Ese comprobante ya tiene compromiso generado');
+      }
+
+      const itemRows: any[] = await db.queryTx(
+        conn,
+        'SELECT id FROM comprobante_item_compromiso WHERE comprobante_id = ? LIMIT 1',
+        [comprobanteId]
+      );
+      if (!itemRows.length) {
+        throw new Error('No hay detalle cargado para generar el compromiso');
+      }
+
+      await db.rowCreateTx(conn, 'compromiso', {
+        comprobante_id: comprobanteId,
+        fecha_devengamiento: fechaDevengamiento || compRows[0].fecha_emision,
+      });
+    });
+
+    res.status(201).json({ success: true });
+  } catch (error: any) {
+    if (error?.message) {
+      return res.status(400).json({ error: error.message });
+    }
     console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -235,7 +291,7 @@ app.get('/api/voucher', async (req, res) => {
 
 app.get('/api/pending-commitment', async (req, res) => {
   try {
-    const result = await db.sqlQuery('SELECT * FROM compromiso_pendiente ORDER BY fecha_vencimiento DESC');
+    const result = await db.sqlQuery('SELECT * FROM compromiso_pendiente WHERE comprobante_id IN (SELECT id FROM comprobante WHERE anulado = 0) ORDER BY fecha_vencimiento DESC');
     res.json(result);
   } catch (error) {
     console.error('Internal server error: ', error);
@@ -311,7 +367,7 @@ app.post('/api/pending-commitment', async (req, res) => {
 });
 
 // COMPROBANTES CABECERA
-app.post('/api/voucher-head', async (req, res) => {
+/*app.post('/api/voucher-head', async (req, res) => {
   try {
     await db.rowCreate('comprobantes_cabecera', {
       'tipo': req.body.type,
@@ -322,6 +378,270 @@ app.post('/api/voucher-head', async (req, res) => {
 
     res.status(201).json({ success: true });
 
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});*/
+
+app.post('/api/voucher-head', async (req, res) => {
+  try {
+    const tipo = typeof req.body.type === 'string' ? req.body.type.trim() : '';
+    const numero = typeof req.body.number === 'string' ? req.body.number.trim() : '';
+    const fecha = typeof req.body.date === 'string' ? req.body.date.trim() : '';
+    const proveedorId = req.body.provider ? parseInt(req.body.provider) : null;
+
+    if (!tipo) return res.status(400).json({ error: 'El tipo es obligatorio' });
+    if (!numero) return res.status(400).json({ error: 'El número es obligatorio' });
+    if (!fecha) return res.status(400).json({ error: 'La fecha es obligatoria' });
+
+    await db.rowCreate('comprobante', {
+      tipo,
+      numero,
+      fecha_emision: fecha,
+      fecha_vencimiento: null,
+      proveedor_id: proveedorId,
+      anulado: 0,
+      anulado_at: null,
+    });
+
+    res.status(201).json({ success: true });
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DETALLE COMPROBANTE (ITEMS COMPROMISO)
+app.get('/api/voucher-head-summary', async (req, res) => {
+  try {
+    const result = await db.sqlQuery(`
+      SELECT
+        c.id,
+        c.tipo,
+        c.numero,
+        c.fecha_emision,
+        p.nombre AS proveedor_nombre,
+        COALESCE(SUM(ci.monto_unidad * ci.unidades), 0.00) AS monto_total,
+        CASE WHEN EXISTS (
+          SELECT 1 FROM compromiso cm WHERE cm.comprobante_id = c.id
+        ) THEN 1 ELSE 0 END AS tiene_compromiso,
+        CASE WHEN EXISTS (
+          SELECT 1 FROM egreso e WHERE e.comprobante_compromiso_id = c.id
+        ) THEN 1 ELSE 0 END AS esta_pagado,
+        c.anulado
+      FROM comprobante c
+      LEFT JOIN proveedor p ON p.id = c.proveedor_id
+      LEFT JOIN comprobante_item_compromiso ci ON ci.comprobante_id = c.id
+      WHERE c.proveedor_id IS NOT NULL
+      GROUP BY c.id, c.tipo, c.numero, c.fecha_emision, p.nombre, c.anulado
+      ORDER BY c.fecha_emision DESC, c.id DESC
+    `);
+
+    res.json(result);
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/voucher-item-commitment/:comprobanteId', async (req, res) => {
+  try {
+    const comprobanteId = parseInt(req.params.comprobanteId);
+    if (Number.isNaN(comprobanteId)) {
+      return res.status(400).json({ error: 'ID de comprobante inválido' });
+    }
+
+    const result = await db.sqlQuery(`
+      SELECT
+        ci.id,
+        ci.comprobante_id,
+        ci.producto_id,
+        pr.nombre AS producto_nombre,
+        ci.puc_id,
+        puc.nombre AS puc_nombre,
+        ci.monto_unidad,
+        ci.unidades,
+        (ci.monto_unidad * ci.unidades) AS subtotal
+      FROM comprobante_item_compromiso ci
+      LEFT JOIN producto pr ON pr.id = ci.producto_id
+      LEFT JOIN puc ON puc.id = ci.puc_id
+      WHERE ci.comprobante_id = ${comprobanteId}
+      ORDER BY ci.id ASC
+    `);
+
+    res.json(result);
+  } catch (error) {
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/voucher-item-commitment', async (req, res) => {
+  try {
+    const comprobanteId = parseInt(req.body.comprobanteId);
+    const productId = parseInt(req.body.productId);
+    const quantity = parseInt(req.body.quantity);
+    const unitAmount = parseFloat(req.body.unitAmount);
+
+    if (Number.isNaN(comprobanteId)) return res.status(400).json({ error: 'comprobanteId inválido' });
+    if (Number.isNaN(productId)) return res.status(400).json({ error: 'productId inválido' });
+    if (Number.isNaN(quantity) || quantity <= 0) return res.status(400).json({ error: 'Cantidad inválida' });
+    if (Number.isNaN(unitAmount) || unitAmount <= 0) return res.status(400).json({ error: 'Monto unitario inválido' });
+
+    await db.withTransaction(async (conn) => {
+      const headRows: any[] = await db.queryTx(
+        conn,
+        'SELECT id, anulado FROM comprobante WHERE id = ? LIMIT 1',
+        [comprobanteId]
+      );
+      if (!headRows.length) throw new Error('La cabecera no existe');
+      if (headRows[0].anulado === 1) throw new Error('La cabecera está anulada');
+
+      const paidRows: any[] = await db.queryTx(
+        conn,
+        'SELECT 1 FROM egreso WHERE comprobante_compromiso_id = ? LIMIT 1',
+        [comprobanteId]
+      );
+      if (paidRows.length) throw new Error('No se puede editar un comprobante ya pagado');
+
+      const dupRows: any[] = await db.queryTx(
+        conn,
+        'SELECT id FROM comprobante_item_compromiso WHERE comprobante_id = ? AND producto_id = ? LIMIT 1',
+        [comprobanteId, productId]
+      );
+      if (dupRows.length) throw new Error('Ese producto ya está cargado en la cabecera');
+
+      const productRows: any[] = await db.queryTx(
+        conn,
+        'SELECT id, puc_compra_id, activo FROM producto WHERE id = ? LIMIT 1',
+        [productId]
+      );
+      if (!productRows.length) throw new Error('Producto inexistente');
+      if (productRows[0].activo !== 1) throw new Error('El producto está inactivo');
+
+      await db.rowCreateTx(conn, 'comprobante_item_compromiso', {
+        comprobante_id: comprobanteId,
+        producto_id: productId,
+        puc_id: productRows[0].puc_compra_id,
+        monto_unidad: unitAmount,
+        unidades: quantity,
+      });
+    });
+
+    res.status(201).json({ success: true });
+  } catch (error: any) {
+    if (error?.message) {
+      return res.status(400).json({ error: error.message });
+    }
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.put('/api/voucher-item-commitment/:id', async (req, res) => {
+  try {
+    const itemId = parseInt(req.params.id);
+    const quantity = parseInt(req.body.quantity);
+    const unitAmount = parseFloat(req.body.unitAmount);
+
+    if (Number.isNaN(itemId)) return res.status(400).json({ error: 'ID inválido' });
+    if (Number.isNaN(quantity) || quantity <= 0) return res.status(400).json({ error: 'Cantidad inválida' });
+    if (Number.isNaN(unitAmount) || unitAmount <= 0) return res.status(400).json({ error: 'Monto unitario inválido' });
+
+    await db.withTransaction(async (conn) => {
+      const rows: any[] = await db.queryTx(
+        conn,
+        'SELECT comprobante_id FROM comprobante_item_compromiso WHERE id = ? LIMIT 1',
+        [itemId]
+      );
+      if (!rows.length) throw new Error('Ítem inexistente');
+
+      const comprobanteId = rows[0].comprobante_id;
+
+      const paidRows: any[] = await db.queryTx(
+        conn,
+        'SELECT 1 FROM egreso WHERE comprobante_compromiso_id = ? LIMIT 1',
+        [comprobanteId]
+      );
+      if (paidRows.length) throw new Error('No se puede editar un comprobante ya pagado');
+
+      await db.queryTx(
+        conn,
+        'UPDATE comprobante_item_compromiso SET monto_unidad = ?, unidades = ? WHERE id = ?',
+        [unitAmount, quantity, itemId]
+      );
+    });
+
+    res.json({ success: true });
+  } catch (error: any) {
+    if (error?.message) {
+      return res.status(400).json({ error: error.message });
+    }
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/api/voucher-item-commitment/:id', async (req, res) => {
+  try {
+    const itemId = parseInt(req.params.id);
+    if (Number.isNaN(itemId)) return res.status(400).json({ error: 'ID inválido' });
+
+    await db.withTransaction(async (conn) => {
+      const rows: any[] = await db.queryTx(
+        conn,
+        'SELECT comprobante_id FROM comprobante_item_compromiso WHERE id = ? LIMIT 1',
+        [itemId]
+      );
+      if (!rows.length) throw new Error('Ítem inexistente');
+
+      const comprobanteId = rows[0].comprobante_id;
+
+      const paidRows: any[] = await db.queryTx(
+        conn,
+        'SELECT 1 FROM egreso WHERE comprobante_compromiso_id = ? LIMIT 1',
+        [comprobanteId]
+      );
+      if (paidRows.length) throw new Error('No se puede eliminar ítems de un comprobante pagado');
+
+      await db.queryTx(conn, 'DELETE FROM comprobante_item_compromiso WHERE id = ?', [itemId]);
+    });
+
+    res.json({ success: true });
+  } catch (error: any) {
+    if (error?.message) {
+      return res.status(400).json({ error: error.message });
+    }
+    console.error('Internal server error: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.put('/api/voucher-head/:id/cancel', async (req, res) => {
+  try {
+    const comprobanteId = parseInt(req.params.id);
+    if (Number.isNaN(comprobanteId)) {
+      return res.status(400).json({ error: 'ID de comprobante inválido' });
+    }
+
+    const paidRows: any[] = await db.sqlQuery(`
+      SELECT 1
+      FROM egreso
+      WHERE comprobante_compromiso_id = ${comprobanteId}
+      LIMIT 1
+    `);
+
+    if (paidRows.length) {
+      return res.status(409).json({ error: 'No se puede anular: el comprobante ya fue pagado' });
+    }
+
+    await db.rowEdit('comprobante', comprobanteId, {
+      anulado: 1,
+      anulado_at: new Date(),
+    });
+
+    res.json({ success: true });
   } catch (error) {
     console.error('Internal server error: ', error);
     res.status(500).json({ error: 'Internal server error' });

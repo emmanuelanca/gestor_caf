@@ -20,11 +20,23 @@ export function useVoucherHead() {
         provider: newProvider || null
       };
 
-      await fetch(`${API_URL}/api/voucher-head`, {
+      /*await fetch(`${API_URL}/api/voucher-head`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(valuesVoucherHead)
+      });*/
+
+      const response = await fetch(`${API_URL}/api/voucher-head`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(valuesVoucherHead)
       });
+
+      if (!response.ok) {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+        return;
+      }
 
       setNewType('');
       setNewNumber('');
